@@ -6,6 +6,7 @@ import {
   faClipboard,
   faFile,
   faFloppyDisk,
+  faRankingStar,
   faServer,
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -73,19 +74,20 @@ const TeacherNav = () => {
         </li>
 
         <li className="mb-5">
-          <Link to="/teacher/leader-board">
+          <Link to="/teacher/live-rankings">
             <div
               className={`flex items-center px-3 py-2 rounded-md ${
-                isActive("/teacher/leader-board")
+                isActive("/teacher/live-rankings") ||
+                window.location.pathname.startsWith("/teacher/live-rankings/")
                   ? "bg-indigo-50 dark:bg-indigo-900 text-indigo-500 dark:text-indigo-300"
                   : "text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
               }`}
             >
               <FontAwesomeIcon
-                icon={faServer}
+                icon={faRankingStar}
                 className="icon h-7 w-7 mx-3 text-gray-700 dark:text-gray-200"
               />
-              <p className="text-sm text-xl">Leaderboard</p>
+              <p className="text-sm text-xl">Live Rankings</p>
             </div>
           </Link>
         </li>

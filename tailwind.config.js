@@ -24,16 +24,13 @@ module.exports = {
           },
         },
         blink: {
-          "50%": {
-            borderColor: "transparent",
-          },
-          "100%": {
-            borderColor: "white",
-          },
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0' },
         },
       },
       animation: {
         typing: "typing 2s steps(20) infinite alternate, blink .7s infinite",
+        blink: "blink 1s infinite",
       },
     },
   },
