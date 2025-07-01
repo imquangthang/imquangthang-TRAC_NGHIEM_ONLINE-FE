@@ -4,6 +4,8 @@ import Teacher from "../Components/Teacher/teacher";
 import Exams from "../Components/Teacher/Exams/exams";
 import Questions from "../Components/Teacher/Questions/questions";
 import ExamDetail from "../Components/Teacher/Exams/examDetail";
+import OngoingExams from "../Components/Teacher/Live Rankings/ongoingExams";
+import LiveRankings from "../Components/Teacher/Live Rankings/liveRankings";
 
 const teacherRoutes = (Layouts: () => React.JSX.Element, user: userState) => {
   return (
@@ -12,6 +14,8 @@ const teacherRoutes = (Layouts: () => React.JSX.Element, user: userState) => {
       <Route path="exams" element={<Exams />} />
       <Route path="questions" element={<Questions />} />
       <Route path="examDetail" element={<ExamDetail />} />
+      <Route path="live-rankings" element={<OngoingExams />} />
+      <Route path="live-rankings/:id" element={<LiveRankings />} />
       {/* <Route path="users" element={<UserManagement />} />
       <Route path="roles" element={<RoleManagement />} /> */}
     </Route>
