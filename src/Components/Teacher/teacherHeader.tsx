@@ -25,7 +25,7 @@ const TeacherHeader = () => {
           <div className="relative w-7/12">
             <FontAwesomeIcon
               icon={faSearch}
-              className="text-cordes-blue dark:text-blue-400 text-xl absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300"
+              className="text-cordes-blue text-xl absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300"
             />
             <input
               type="text"
