@@ -4,10 +4,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBookOpen,
   faClipboard,
-  faFile,
   faFloppyDisk,
   faRankingStar,
-  faServer,
 } from "@fortawesome/free-solid-svg-icons";
 
 const TeacherNav = () => {

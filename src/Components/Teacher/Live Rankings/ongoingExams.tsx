@@ -125,7 +125,7 @@ const OngoingExams = () => {
                               <td className="px-6 py-4 flex items-center gap-2 text-sm font-medium text-gray-800 dark:text-white">
                                 <FontAwesomeIcon
                                   icon={faCircle}
-                                  className="text-red-500 animate-blink"
+                                  className="text-red-500 animate-pulse !important"
                                 />
                                 <p className="line-clamp-2">{exam.title}</p>
                               </td>
