@@ -1,105 +1,71 @@
-// import { useState } from "react";
+import { useState } from "react";
 import "./logIn.css";
 import { useNavigate } from "react-router-dom";
-import Logo from "../../assets/Logo.png";
-// import { toast } from "react-toastify";
-// import { loginUser } from "../../services/userService";
-// import { useDispatch, useSelector } from "react-redux";
-// import { setLoading, setUnLoading } from "../../redux/reducer/loading.ts";
-// import { loginUserRedux } from "../../redux/reducer/user.reducer.ts";
+import Logo from "../../Assets/Logo.png";
+import { toast } from "react-toastify";
+import { login } from "../../Services/authService.ts";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading, setUnLoading } from "../../Redux/Reducer/loading.ts";
+import { loginUserRedux } from "../../Redux/Reducer/user.reducer.ts";
 
 const LogIn = () => {
-  // const user = useSelector((state) => state.user) || {};
-  // const dispatch = useDispatch();
+  const user = useSelector((state: any) => state.user) || {};
+  const dispatch = useDispatch();
 
   let navigate = useNavigate();
 
-  // const [valueLogin, setValueLogin] = useState("");
-  // const [password, setPassword] = useState("");
+  const [valueLogin, setValueLogin] = useState("");
+  const [password, setPassword] = useState("");
 
-  // const handleLogin = async () => {
-  //   setObjValidInput(defaultObjValidInput);
-  //   if (!valueLogin) {
-  //     setObjValidInput({ ...defaultObjValidInput, isValidValueLogin: false });
-  //     toast.error("Please enter your email address or phone number");
-  //     return;
-  //   }
+  const handleLogin = async () => {
+    dispatch(setLoading());
+    let response: any = await login(valueLogin, password);
+    dispatch(setUnLoading());
 
-  //   if (!password) {
-  //     setObjValidInput({ ...defaultObjValidInput, isValidPassword: false });
-  //     toast.error("Please enter your password");
-  //     return;
-  //   }
+    if (response && +response.code === 200) {
+      toast.success(response.EM);
+      // Success
+      let Role = response.data?.Role;
+      let Token = response.data?.Token;
+      let Username = response.data?.Username;
 
-  //   dispatch(setLoading());
-  //   let response = await loginUser(valueLogin, password);
-  //   dispatch(setUnLoading());
+      let data = {
+        isAuthenticated: true,
+        Token,
+        account: {
+          Username,
+          Role,
+        },
+      };
 
-  //   if (response && +response.EC === 0) {
-  //     toast.success(response.EM);
-  //     // Success
-  //     let groupWithRoles = response.DT.groupWithRoles;
-  //     let id = response.DT.id;
-  //     let email = response.DT.email;
-  //     let username = response.DT.username;
-  //     let firstName = response.DT.firstName;
-  //     let lastName = response.DT.lastName;
-  //     let token = response.DT.access_token;
-  //     let phone = response.DT.phone;
-  //     let gender = response.DT.gender;
-  //     let avatar = response.DT.avatar;
-  //     let address = response.DT.address;
+      localStorage.setItem("jwt", Token);
+      localStorage.setItem("user", JSON.stringify(data));
+      dispatch(loginUserRedux(data));
+      switch (Role) {
+        case "0":
+          navigate("/admin");
+          break;
+        case "1":
+          navigate("/teacher");
+          break;
+        case "2":
+          navigate("/student");
+          break;
+        default:
+          navigate("/");
+          break;
+      }
+    } else {
+      // ERROR
+      toast.error(response.EM);
+    }
+  };
 
-  //     let data = {
-  //       isAuthenticated: true,
-  //       token,
-  //       account: {
-  //         groupWithRoles,
-  //         id,
-  //         email,
-  //         username,
-  //         firstName,
-  //         lastName,
-  //         phone,
-  //         gender,
-  //         avatar,
-  //         address,
-  //       },
-  //     };
-
-  //     localStorage.setItem("jwt", token);
-  //     localStorage.setItem("user", JSON.stringify(data));
-  //     dispatch(loginUserRedux(data));
-  //     switch (groupWithRoles?.name) {
-  //       case "admin":
-  //         navigate("/manage");
-  //         break;
-  //       case "hospital":
-  //         navigate("/hospital");
-  //         break;
-  //       case "doctor":
-  //         navigate("/doctor");
-  //         break;
-  //       case "staff":
-  //         navigate("/staff");
-  //         break;
-  //       default:
-  //         navigate("/");
-  //         break;
-  //     }
-  //   }
-
-  //   if (response && +response.EC !== 0) {
-  //     // ERROR
-  //     toast.error(response.EM);
-  //   }
-  // };
-
-  // const handlePressEnter = (event) => {
-  //   if (event.code === "Enter") {
-  //     handleLogin();
-  //   }
-  // };
+  const handlePressEnter = (event: any) => {
+    if (event.code === "Enter") {
+      handleLogin();
+    }
+  };
 
   return (
     <>
@@ -112,16 +78,25 @@ const LogIn = () => {
           </div>
 
           <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-            <form className="space-y-6" method="POST">
+            <form
+              className="space-y-6"
+              method="POST"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleLogin();
+              }}
+            >
               <div>
                 <div className="mt-2">
                   <input
-                    type="email"
-                    name="email"
-                    id="email"
-                    autoComplete="email"
+                    type="Username"
+                    name="Username"
+                    id="Username"
+                    autoComplete="Username"
                     placeholder="Tên đăng nhập"
                     required
+                    value={valueLogin}
+                    onChange={(e) => setValueLogin(e.target.value)}
                     className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                   />
                 </div>
@@ -137,7 +112,10 @@ const LogIn = () => {
                     minLength={6}
                     autoComplete="current-password"
                     required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                    onKeyDown={handlePressEnter}
                   />
                 </div>
                 <div className="mt-2 flex justify-between items-center">

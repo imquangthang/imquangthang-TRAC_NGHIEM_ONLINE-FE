@@ -3,22 +3,23 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import Logo from "../../assets/Logo.png";
 import { toast } from "react-toastify";
-// import { setLoading, setUnLoading } from "../../redux/reducer/loading.ts";
+import { setLoading, setUnLoading } from "../../Redux/Reducer/loading.ts";
 import { useDispatch, useSelector } from "react-redux";
+import { register } from "../../Services/authService.ts";
+import type { ResponseType } from "../../Types/Response Type/responseType.ts";
 
 const Register = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const role = queryParams.get("role"); // "teacher" hoặc "student"
-  console.log("Role from query params:", role);
 
   const dispatch = useDispatch();
   const user = useSelector((state: any) => state.user) || {};
 
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [email, setEmail] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
   const defaultValidInput = {
     isValidEmail: true,
     isUsername: true,
@@ -50,110 +51,43 @@ const Register = () => {
     return true;
   };
 
-  // const handleRegister = async () => {
-  //   let check = isValidInput();
+  const handleRegister = async () => {
+    let check = isValidInput();
 
-  //   if (check === true) {
-  //     dispatch(setLoading());
-  //     let serverData = await registerNewUser(
-  //       firstName,
-  //       lastName,
-  //       email,
-  //       phone,
-  //       username,
-  //       password
-  //     );
-  //     dispatch(setUnLoading());
-  //     if (+serverData.EC === 0) {
-  //       toast.success(serverData.EM);
-  //       navigate("/login");
-  //     } else {
-  //       toast.error(serverData.EM);
-  //       if (+serverData.EC === 1) {
-  //         setObjCheckInput({ ...defaultValidInput, isValidEmail: false });
-  //       } else if (+serverData.EC === 2) {
-  //         setObjCheckInput({ ...defaultValidInput, isValidPhone: false });
-  //       } else if (+serverData.EC === 3) {
-  //         setObjCheckInput({ ...defaultValidInput, isUsername: false });
-  //       }
-  //     }
-  //   }
-  // };
+    if (check === true) {
+      try {
+        dispatch(setLoading());
+        let response: any = await register({
+          Email: email,
+          Username: username,
+          Password: password,
+        });
+        if (response) {
+          if (+response.code === 200) {
+            toast.success("Register successfully");
+            navigate("/login");
+          } else {
+            toast.error(response.msgNo);
+          }
+        }
+        dispatch(setUnLoading());
+      } catch (error) {
+        console.error("Error during registration:", error);
+        toast.error("An error occurred during registration. Please try again.");
+        return;
+      }
+    }
+  };
 
-  // useEffect(() => {
-  //   if (user && user.isAuthenticated) {
-  //     console.log(user);
-  //     window.history.back();
-  //   }
-  // }, [user]);
+  useEffect(() => {
+    if (user && user.isAuthenticated) {
+      console.log(user);
+      window.history.back();
+    }
+  }, [user]);
 
   return (
     <>
-      {/* <div className="max-h-screen">
-        <section className="border-red-500 bg-gray-200 min-h-screen flex items-center justify-center">
-          <div className="bg-gray-100 p-5 flex rounded-2xl shadow-lg max-w-3xl">
-            <div className="md:w-1/2 px-5">
-              <h2 className="text-2xl font-bold text-[#002D74]">Register</h2>
-              <p className="text-sm mt-4 text-[#002D74]">
-                If you don't have an account, please register
-              </p>
-              <form className="mt-6" action="#" method="POST">
-                <div>
-                  <label className="block text-gray-700">Email Address</label>
-                  <input
-                    type="email"
-                    name=""
-                    id=""
-                    placeholder="Enter Email Address"
-                    className="w-full px-4 py-3 rounded-lg bg-gray-200 mt-2 border focus:border-blue-500 focus:bg-white focus:outline-none"
-                    autoFocus
-                    autoComplete="on"
-                    required
-                  />
-                </div>
-
-                <div className="mt-4">
-                  <label className="block text-gray-700">Password</label>
-                  <input
-                    type="password"
-                    name=""
-                    id=""
-                    placeholder="Enter Password"
-                    minLength={6}
-                    className="w-full px-4 py-3 rounded-lg bg-gray-200 mt-2 border focus:border-blue-500 focus:bg-white focus:outline-none"
-                    required
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full block bg-blue-500 hover:bg-blue-400 focus:bg-blue-400 text-white font-semibold rounded-lg px-4 py-3 mt-6"
-                >
-                  Register
-                </button>
-              </form>
-
-              <div className="text-sm flex justify-between items-center mt-3">
-                <p>If you have an account...</p>
-                <button
-                  className="py-2 px-5 ml-3 bg-white border rounded-xl hover:scale-110 duration-300 border-blue-400"
-                  onClick={() => navigate("/login")}
-                >
-                  Log In
-                </button>
-              </div>
-            </div>
-
-            <div className="w-1/2 md:block">
-              <img
-                src="https://images.unsplash.com/photo-1614741118887-7a4ee193a5fa?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1887&q=80"
-                className="rounded-2xl"
-                alt="page img"
-              />
-            </div>
-          </div>
-        </section>
-      </div> */}
       <div className="bg-gradient-to-b from-white to-sky-300 min-h-screen flex items-center justify-center">
         <div className="flex min-h-full w-[400px] flex-col justify-center px-6 py-12 lg:px-8 border rounded-2xl bg-white shadow-lg">
           <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -167,7 +101,7 @@ const Register = () => {
               className="space-y-6"
               onSubmit={(e) => {
                 e.preventDefault();
-                isValidInput();
+                handleRegister();
               }}
               method="POST"
             >

@@ -11,41 +11,20 @@ import { initDropdowns } from "flowbite";
 
 function App() {
   const location = useLocation();
-  // const dispatch = useDispatch();
-  // const navigate = useNavigate();
-  // const user = useSelector((state: any) => state.user) || {};
-  // const token = localStorage.getItem("jwt");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const user = useSelector((state: any) => state.user) || {};
+  const token = localStorage.getItem("jwt");
   const isLoading =
     useSelector((state: any) => state.loading.isLoading) || false;
 
-  // useEffect(() => {
-  //   dispatch(setLoading());
-  //   if (!token) {
-  //     navigate("/login");
-  //   }
-  //   dispatch(setUnLoading());
-  // }, [token]);
-
-  let user: userState = {
-    isAuthenticated: true,
-    token: "sample-token",
-    account: {
-      id: "0",
-      username: "",
-      email: "",
-      groupWithRoles: {
-        _id: "0",
-        name: "teacher",
-        description: "adada",
-      },
-      firstName: "",
-      lastName: "",
-      phone: "",
-      gender: "",
-      avatar: "",
-      address: "",
-    },
-  };
+  useEffect(() => {
+    dispatch(setLoading());
+    if (!token) {
+      navigate("/login");
+    }
+    dispatch(setUnLoading());
+  }, [token]);
 
   useEffect(() => {
     initDropdowns();
@@ -71,18 +50,17 @@ function App() {
       />
       {/* <Loading web> */}
       {isLoading && (
-        <div
-          className="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center bg-white"
-          style={{ zIndex: 2000 }}
-        >
-          <RotatingTriangles
-            visible={true}
-            height="100"
-            width="100"
-            colors={["#4fa94d", "#4fa94d", "#4fa94d"]}
-            ariaLabel="rotating-triangles-loading"
-          />
-          <p>Loading...</p>
+        <div className="fixed z-10 top-0 start-0 w-screen h-screen flex justify-center items-center bg-white">
+          <div className="text-center">
+            <RotatingTriangles
+              visible={true}
+              height="100"
+              width="100"
+              colors={["#4fa94d", "#4fa94d", "#4fa94d"]}
+              ariaLabel="rotating-triangles-loading"
+            />
+            <p className="inline-block">Loading...</p>
+          </div>
         </div>
       )}
     </>
