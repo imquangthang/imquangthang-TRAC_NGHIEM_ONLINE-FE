@@ -18,14 +18,12 @@ interface AppRoutesProps {
 const AppRoutes: React.FC<AppRoutesProps> = ({ user }) => (
   <Routes>
     {(() => {
-      console.log("user", user);
-
-      switch (user?.account?.groupWithRoles?.name) {
-        case "admin":
+      switch (user?.account?.Role) {
+        case "0":
           return adminRoutes(adminLayout);
-        case "teacher":
+        case "1":
           return teacherRoutes(teacherLayout, user);
-        case "student":
+        case "2":
           return studentRoutes(studentLayout, user);
       }
     })()}
