@@ -1,22 +1,22 @@
 import { Route } from "react-router-dom";
 import type { userState } from "../Redux/Types/user.type";
+import Student from "../Components/Student/student";
+import Exams from "../Components/Student/Exams/exams";
+import ExamDetail from "../Components/Student/Exams/examDetail";
+import Leaderboard from "../Components/Student/Leaderboard/leaderboard";
+import LeaderboardDetail from "../Components/Student/Leaderboard/leaderboardDetail";
+import ExamHistory from "../Components/Student/Exam History/examHistory";
 
 const studentRoutes = (Layouts: () => React.JSX.Element, user: userState) => {
   /* User Routes */
   return (
-    <Route path="/" element={<Layouts />}>
-      <Route index element={<></>} />
-      <Route path="guide" element={<></>} />
-      <Route
-        path="appointment"
-        element={<></>}
-      />
-      <Route path="look-up" element={<></>} />
-      <Route path="history" element={<></>} />
-      <Route path="ecg-history" element={<></>} />
-      <Route path="account/*" element={<></>} />
-      <Route path="measure-prepare" element={<></>} />
-      <Route path="chat" element={<></>} />
+    <Route path="/student" element={<Layouts />}>
+      <Route index element={<Student />} />
+      <Route path="exams" element={<Exams />} />
+      <Route path="exam/:id" element={<ExamDetail />} />
+      <Route path="leaderboard" element={<Leaderboard />} />
+      <Route path="leaderboard/:id" element={<LeaderboardDetail />} />
+      <Route path="exam-history" element={<ExamHistory />} />
     </Route>
   );
 };

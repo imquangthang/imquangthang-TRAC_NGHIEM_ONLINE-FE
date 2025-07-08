@@ -6,25 +6,34 @@ import { setLoading, setUnLoading } from "./Redux/Reducer/loading";
 import AppRoutes from "./Routes/appRoutes";
 import { ToastContainer } from "react-toastify";
 import { RotatingTriangles } from "react-loader-spinner";
-import type { userState } from "./Redux/Types/user.type";
 import { initDropdowns } from "flowbite";
+import type { userState } from "./Redux/Types/user.type";
 
 function App() {
   const location = useLocation();
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const user = useSelector((state: any) => state.user) || {};
-  const token = localStorage.getItem("jwt");
+  // const user = useSelector((state: any) => state.user) || {};
   const isLoading =
     useSelector((state: any) => state.loading.isLoading) || false;
+  // const token = localStorage.getItem("jwt");
+  // const dispatch = useDispatch();
+  // const navigate = useNavigate();
 
-  useEffect(() => {
-    dispatch(setLoading());
-    if (!token) {
-      navigate("/login");
-    }
-    dispatch(setUnLoading());
-  }, [token]);
+  // useEffect(() => {
+  //   dispatch(setLoading());
+  //   if (!token) {
+  //     navigate("/login");
+  //   }
+  //   dispatch(setUnLoading());
+  // }, [token]);
+
+  let user: userState = {
+    isAuthenticated: true,
+    Token: "sample-token",
+    account: {
+      Username: "sampleUser",
+      Role: "2", // 0: admin, 1: teacher, 2: student
+    },
+  };
 
   useEffect(() => {
     initDropdowns();

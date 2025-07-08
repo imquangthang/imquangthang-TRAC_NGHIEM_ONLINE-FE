@@ -25,8 +25,6 @@ const teacherRoutes = (Layouts: () => React.JSX.Element, user: userState) => {
         path="exam-history/:examId/student/:studentId"
         element={<DetailExamResult />}
       />
-      {/* <Route path="users" element={<UserManagement />} />
-      <Route path="roles" element={<RoleManagement />} /> */}
     </Route>
   );
 };

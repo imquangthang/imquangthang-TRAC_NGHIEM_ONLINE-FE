@@ -1,10 +1,10 @@
-import { faEye, faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import StudentHeader from "../studentHeader";
 import { useNavigate } from "react-router-dom";
+import { faEye } from "@fortawesome/free-solid-svg-icons";
 
-const Exams = () => {
-  const navigare = useNavigate();
+const Leaderboard = () => {
+  const navigate = useNavigate();
   const listExams = [
     {
       id: 1,
@@ -182,15 +182,19 @@ const Exams = () => {
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
                                 {exam.created_by}
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
-                                <button
-                                  className="mt-4 px-2 bg-blue-600 text-white py-2 rounded hover:bg-blue-500"
-                                  onClick={() => {
-                                    navigare(`/student/exam/${index + 1}`);
-                                  }}
-                                >
-                                  Làm Bài
-                                </button>
+                              <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                <FontAwesomeIcon
+                                  icon={faEye}
+                                  className="icon h-5 w-5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer"
+                                  onClick={() =>
+                                    navigate(
+                                      `/student/leaderboard/${exam.id}`,
+                                      {
+                                        state: { exam }, // Truyền nguyên object
+                                      }
+                                    )
+                                  }
+                                />
                               </td>
                             </tr>
                           ))}
@@ -251,4 +255,4 @@ const Exams = () => {
     </div>
   );
 };
-export default Exams;
+export default Leaderboard;
