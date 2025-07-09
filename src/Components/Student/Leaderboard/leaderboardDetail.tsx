@@ -402,7 +402,6 @@ const exams: Exam[] = [
 ];
 
 const LeaderboardDetail = () => {
-  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [DetailExam, setDetailExam] = useState<Exam | null>(
     exams.find((exam) => exam.id === parseInt(id || "0")) || null
