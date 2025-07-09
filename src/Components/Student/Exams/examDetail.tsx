@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFlag } from "@fortawesome/free-solid-svg-icons";
-import { ref, update, onValue, push, serverTimestamp } from "firebase/database";
-import { db } from "../../../Setup/firebase";
-import StudentHeader from "../studentHeader";
+import { ref, update, onValue, push, serverTimestamp } from "firebase/database"; // Changed set to update
+import { db } from "../../../Setup/firebase"; // Ensure firebase.ts exports Realtime Database
+import StudentHeader from "../studentHeader"; // Adjusted path if needed
 
 type Question = {
   question: string;
@@ -13,10 +13,10 @@ type Question = {
 };
 
 const dummyExam = {
-  title: "1 minute",
+  title: "15 minutes",
   id: "drill",
   description: "Geography",
-  timeLimit: 60, // 1 minute in seconds
+  timeLimit: 30, // 15 minutes in seconds
   questions: [
     {
       question: "Việt Nam nằm trong khu vực nào sau đây của châu Á?",
@@ -67,72 +67,68 @@ const ExamDetail = ({ userId }: { userId: string }) => {
   const [submitted, setSubmitted] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(exam.timeLimit);
   const [startTime, setStartTime] = useState<number | null>(null);
+  const selectedAnswersRef = useRef(selectedAnswers);
+
+  useEffect(() => {
+    selectedAnswersRef.current = selectedAnswers;
+  }, [selectedAnswers]);
 
   // Load exam state from Realtime Database
   useEffect(() => {
     const examRef = ref(db, `exams/${exam.id}/students/${userId}`);
-    const unsubscribe = onValue(
-      examRef,
-      (snapshot) => {
-        const data = snapshot.val();
-        console.log("Exam state loaded:", data); // Debug log
-        if (data) {
-          setSelectedAnswers(data.selectedAnswers || {});
-          setFlaggedQuestions(data.flaggedQuestions || {});
-          setSubmitted(data.submitted || false);
-          if (data.startTime) {
-            const start = data.startTime;
-            setStartTime(start);
-            const elapsed = Math.floor((Date.now() - start) / 1000);
-            const remaining = exam.timeLimit - elapsed;
-            setTimeRemaining(remaining > 0 ? remaining : 0);
-            if (remaining <= 0 && !data.submitted) {
-              handleSubmit(); // Auto-submit if time runs out
-            }
-          } else {
-            // New exam attempt
-            update(examRef, {
-              startTime: serverTimestamp(), // Use server timestamp
-              selectedAnswers: {},
-              flaggedQuestions: {},
-              submitted: false,
-            }).catch((error) =>
-              console.error("Error initializing exam:", error)
-            );
+    onValue(examRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setSelectedAnswers(data.selectedAnswers || {});
+        setFlaggedQuestions(data.flaggedQuestions || {});
+        setSubmitted(data.submitted || false);
+        if (data.startTime) {
+          const start = data.startTime;
+          setStartTime(start);
+          const elapsed = Math.floor((Date.now() - start) / 1000);
+          const remaining = exam.timeLimit - elapsed;
+          setTimeRemaining(remaining > 0 ? remaining : 0);
+          if (remaining <= 0 && !data.submitted) {
+            handleSubmit(); // Auto-submit if time runs out
           }
         } else {
-          // Initialize new exam attempt
+          // New exam attempt
+          const newStartTime = serverTimestamp();
+          // setStartTime(newStartTime);
           update(examRef, {
-            startTime: serverTimestamp(),
+            startTime: newStartTime,
             selectedAnswers: {},
             flaggedQuestions: {},
             submitted: false,
-          }).catch((error) => console.error("Error initializing exam:", error));
+          });
         }
-      },
-      (error) => {
-        console.error("Error fetching exam state:", error);
+      } else {
+        // Initialize new exam attempt
+        const newStartTime = Date.now();
+        setStartTime(newStartTime);
+        update(examRef, {
+          startTime: newStartTime,
+          selectedAnswers: {},
+          flaggedQuestions: {},
+          submitted: false,
+        });
       }
-    );
-
-    return () => unsubscribe();
+    });
   }, [exam.id, userId, exam.timeLimit]);
 
   // Timer effect
   useEffect(() => {
-    if (submitted || timeRemaining <= 0 || !startTime) return;
+    if (submitted || !startTime) return;
 
     const timer = setInterval(() => {
-      setTimeRemaining((prev) => {
-        const elapsed = Math.floor((Date.now() - startTime) / 1000);
-        const remaining = Math.max(0, exam.timeLimit - elapsed);
-        if (remaining <= 0) {
-          clearInterval(timer);
-          handleSubmit();
-          return 0;
-        }
-        return remaining;
-      });
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      const remaining = Math.max(0, exam.timeLimit - elapsed);
+      setTimeRemaining(remaining);
+
+      if (remaining <= 0) {
+        clearInterval(timer);
+        handleSubmit(); // sẽ dùng ref để tránh mất dữ liệu
+      }
     }, 1000);
 
     return () => clearInterval(timer);
@@ -140,13 +136,8 @@ const ExamDetail = ({ userId }: { userId: string }) => {
 
   // Save answers and flags to Realtime Database
   const saveExamState = async (updates: object) => {
-    try {
-      const examRef = ref(db, `exams/${exam.id}/students/${userId}`);
-      await update(examRef, updates);
-      console.log("Exam state saved:", updates); // Debug log
-    } catch (error) {
-      console.error("Error saving exam state:", error);
-    }
+    const examRef = ref(db, `exams/${exam.id}/students/${userId}`);
+    await update(examRef, updates); // Use update instead of set
   };
 
   const handleAnswerSelect = (questionIndex: number, answerKey: string) => {
@@ -178,23 +169,23 @@ const ExamDetail = ({ userId }: { userId: string }) => {
   const handleSubmit = async () => {
     if (submitted) return;
     setSubmitted(true);
+
+    const answers = selectedAnswersRef.current;
+
     const score = exam.questions.reduce((total, q, i) => {
-      return total + (selectedAnswers[i] === q.correctAnswer ? 1 : 0);
+      return total + (answers[i] === q.correctAnswer ? 1 : 0);
     }, 0);
 
     try {
-      // Save final submission to leaderboard
-      const leaderboardRef = ref(db, `exams/${exam.id}/leaderboard`);
+      const leaderboardRef = ref(db, `exams/${exam.id}/leaderboard/${userId}`);
       await push(leaderboardRef, {
-        userId,
         score,
-        selectedAnswers,
+        selectedAnswers: answers,
         submittedAt: serverTimestamp(),
       });
 
-      // Update exam state
       await saveExamState({
-        selectedAnswers,
+        selectedAnswers: answers,
         flaggedQuestions,
         startTime,
         submitted: true,
