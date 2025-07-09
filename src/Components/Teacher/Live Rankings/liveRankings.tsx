@@ -1,123 +1,110 @@
 import { useState, useEffect } from "react";
-import TeacherHeader from "../teacherHeader";
+import { ref, onValue } from "firebase/database";
+import { db } from "../../../Setup/firebase"; // Ensure firebase.ts exports Realtime Database
+import TeacherHeader from "../teacherHeader"; // Adjusted path if needed
 
 interface Student {
-  id: number;
-  name: string;
+  userId: string;
+  name: string; // Fetched from user profile or fallback to userId
   answered: number;
   total: number;
-  startTime: Date; // Individual start time for each student
+  startTime: number; // Unix timestamp from Realtime Database
+  submitted: boolean;
 }
 
+const examId = "drill"; // Matches ExamDetail's exam.id
+const totalQuestions = 3; // From dummyExam.questions.length in ExamDetail
+
 const LiveRankings = () => {
-  const initialStudents: Student[] = [
-    {
-      id: 1,
-      name: "Nguyen Van A",
-      answered: 0,
-      total: 20,
-      startTime: new Date("2025-07-01T10:48:00+07:00"),
-    },
-    {
-      id: 2,
-      name: "Tran Thi B",
-      answered: 0,
-      total: 20,
-      startTime: new Date("2025-07-01T10:50:00+07:00"),
-    },
-    {
-      id: 3,
-      name: "Le Van C",
-      answered: 0,
-      total: 20,
-      startTime: new Date("2025-07-01T10:51:00+07:00"),
-    },
-    {
-      id: 4,
-      name: "Pham Thi D",
-      answered: 0,
-      total: 20,
-      startTime: new Date("2025-07-01T10:52:00+07:00"),
-    },
-    {
-      id: 5,
-      name: "Hoang Van E",
-      answered: 0,
-      total: 20,
-      startTime: new Date("2025-07-01T10:53:00+07:00"),
-    },
-    {
-      id: 6,
-      name: "Do Thi F",
-      answered: 0,
-      total: 20,
-      startTime: new Date("2025-07-01T10:54:00+07:00"),
-    },
-    {
-      id: 7,
-      name: "Trinh Van G",
-      answered: 0,
-      total: 20,
-      startTime: new Date("2025-07-01T10:50:30+07:00"),
-    },
-    {
-      id: 8,
-      name: "Nguyen Thi H",
-      answered: 0,
-      total: 20,
-      startTime: new Date("2025-07-01T10:52:30+07:00"),
-    },
-    {
-      id: 9,
-      name: "Vu Van I",
-      answered: 0,
-      total: 20,
-      startTime: new Date("2025-07-01T10:54:30+07:00"),
-    },
-    {
-      id: 10,
-      name: "Le Thi K",
-      answered: 0,
-      total: 20,
-      startTime: new Date("2025-07-01T10:55:00+07:00"),
-    },
-  ];
-  const [students, setStudents] = useState<Student[]>(initialStudents);
-  const [activeStudents, setActiveStudents] = useState(3);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [activeStudents, setActiveStudents] = useState(0);
+  const [elapsedTimes, setElapsedTimes] = useState<{
+    [userId: string]: string;
+  }>({});
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setStudents((prev) =>
-        prev.map((student) => ({
-          ...student,
-          answered: Math.min(
-            student.answered + Math.floor(Math.random() * 2),
-            student.total
-          ),
-        }))
-      );
-      setActiveStudents(Math.max(1, Math.floor(Math.random() * 5))); // Simulate active students
-    }, 2000);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, []);
-
-  const getElapsedTime = (startTime: Date) => {
-    const now = new Date();
-    const elapsedSeconds = Math.floor(
-      (now.getTime() - startTime.getTime()) / 1000
-    );
+  // Format elapsed time
+  const formatElapsedTime = (startTime: number) => {
+    const now = Date.now();
+    const elapsedSeconds = Math.floor((now - startTime) / 1000);
     const minutes = Math.floor(elapsedSeconds / 60);
     const seconds = elapsedSeconds % 60;
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
+
+  // Load student data from Realtime Database
+  useEffect(() => {
+    const studentsRef = ref(db, `exams/${examId}/students`);
+    const unsubscribeStudents = onValue(studentsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (!data) {
+        setStudents([]);
+        setActiveStudents(0);
+        setElapsedTimes({});
+        return;
+      }
+
+      const studentList: Student[] = Object.entries(data).map(
+        ([userId, studentData]: [string, any]) => {
+          const answered = studentData.selectedAnswers
+            ? Object.keys(studentData.selectedAnswers).length
+            : 0;
+          return {
+            userId,
+            name: studentData.name || userId, // Fallback to userId if name not available
+            answered,
+            total: totalQuestions,
+            startTime: studentData.startTime || Date.now(),
+            submitted: studentData.submitted || false,
+          };
+        }
+      );
+
+      // Sort by answered questions (descending) and startTime (ascending)
+      studentList.sort((a, b) => {
+        if (a.answered !== b.answered) {
+          return b.answered - a.answered;
+        }
+        return a.startTime - b.startTime;
+      });
+
+      // Initialize elapsed times
+      const initialElapsedTimes = studentList.reduce((acc, student) => {
+        acc[student.userId] = formatElapsedTime(student.startTime);
+        return acc;
+      }, {} as { [userId: string]: string });
+
+      setStudents(studentList);
+      setActiveStudents(studentList.filter((s) => !s.submitted).length);
+      setElapsedTimes(initialElapsedTimes);
+    });
+
+    // Cleanup listener on unmount
+    return () => unsubscribeStudents();
+  }, []);
+
+  // Update elapsed times every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setElapsedTimes((prev) => {
+        const updatedTimes = { ...prev };
+        students.forEach((student) => {
+          if (!student.submitted) {
+            // Only update time for students who haven't submitted
+            updatedTimes[student.userId] = formatElapsedTime(student.startTime);
+          }
+        });
+        return updatedTimes;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [students]);
+
   return (
     <div className="flex flex-col w-full min-h-screen">
-      {/* <!-- Top Header --> */}
+      {/* Top Header */}
       <TeacherHeader />
-      {/* <!-- Main Content --> */}
+      {/* Main Content */}
       <main className="p-6 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
         <p className="mb-5 text-sm text-gray-400">/exams/Live Exam Rankings</p>
         <div className="flex flex-col w-full min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200 p-6">
@@ -140,6 +127,7 @@ const LiveRankings = () => {
                   <th className="p-3 text-left font-semibold">Unanswered</th>
                   <th className="p-3 text-left font-semibold">Progress</th>
                   <th className="p-3 text-left font-semibold">Time Elapsed</th>
+                  <th className="p-3 text-left font-semibold">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -151,7 +139,7 @@ const LiveRankings = () => {
                   ).toFixed(1);
                   return (
                     <tr
-                      key={student.id}
+                      key={student.userId}
                       className="border-b border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
                     >
                       <td className="p-3">{index + 1}</td>
@@ -170,7 +158,10 @@ const LiveRankings = () => {
                         <span className="text-xs mt-1 block">{progress}%</span>
                       </td>
                       <td className="p-3">
-                        {getElapsedTime(student.startTime)}
+                        {elapsedTimes[student.userId] || "0:00"}
+                      </td>
+                      <td className="p-3">
+                        {student.submitted ? "Submitted" : "In Progress"}
                       </td>
                     </tr>
                   );

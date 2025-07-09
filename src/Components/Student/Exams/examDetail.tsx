@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFlag } from "@fortawesome/free-solid-svg-icons";
+import { ref, update, onValue, push, serverTimestamp } from "firebase/database";
+import { db } from "../../../Setup/firebase";
 import StudentHeader from "../studentHeader";
 
 type Question = {
@@ -11,10 +13,10 @@ type Question = {
 };
 
 const dummyExam = {
-  title: "15 minutes",
-  id: "DT001",
+  title: "1 minute",
+  id: "drill",
   description: "Geography",
-  time: "15 minutes",
+  timeLimit: 60, // 1 minute in seconds
   questions: [
     {
       question: "Việt Nam nằm trong khu vực nào sau đây của châu Á?",
@@ -54,7 +56,7 @@ const dummyExam = {
   ],
 };
 
-const ExamDetail = () => {
+const ExamDetail = ({ userId }: { userId: string }) => {
   const [exam] = useState(dummyExam);
   const [selectedAnswers, setSelectedAnswers] = useState<{
     [index: number]: string;
@@ -63,30 +65,156 @@ const ExamDetail = () => {
     [index: number]: boolean;
   }>({});
   const [submitted, setSubmitted] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(exam.timeLimit);
+  const [startTime, setStartTime] = useState<number | null>(null);
+
+  // Load exam state from Realtime Database
+  useEffect(() => {
+    const examRef = ref(db, `exams/${exam.id}/students/${userId}`);
+    const unsubscribe = onValue(
+      examRef,
+      (snapshot) => {
+        const data = snapshot.val();
+        console.log("Exam state loaded:", data); // Debug log
+        if (data) {
+          setSelectedAnswers(data.selectedAnswers || {});
+          setFlaggedQuestions(data.flaggedQuestions || {});
+          setSubmitted(data.submitted || false);
+          if (data.startTime) {
+            const start = data.startTime;
+            setStartTime(start);
+            const elapsed = Math.floor((Date.now() - start) / 1000);
+            const remaining = exam.timeLimit - elapsed;
+            setTimeRemaining(remaining > 0 ? remaining : 0);
+            if (remaining <= 0 && !data.submitted) {
+              handleSubmit(); // Auto-submit if time runs out
+            }
+          } else {
+            // New exam attempt
+            update(examRef, {
+              startTime: serverTimestamp(), // Use server timestamp
+              selectedAnswers: {},
+              flaggedQuestions: {},
+              submitted: false,
+            }).catch((error) =>
+              console.error("Error initializing exam:", error)
+            );
+          }
+        } else {
+          // Initialize new exam attempt
+          update(examRef, {
+            startTime: serverTimestamp(),
+            selectedAnswers: {},
+            flaggedQuestions: {},
+            submitted: false,
+          }).catch((error) => console.error("Error initializing exam:", error));
+        }
+      },
+      (error) => {
+        console.error("Error fetching exam state:", error);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [exam.id, userId, exam.timeLimit]);
+
+  // Timer effect
+  useEffect(() => {
+    if (submitted || timeRemaining <= 0 || !startTime) return;
+
+    const timer = setInterval(() => {
+      setTimeRemaining((prev) => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const remaining = Math.max(0, exam.timeLimit - elapsed);
+        if (remaining <= 0) {
+          clearInterval(timer);
+          handleSubmit();
+          return 0;
+        }
+        return remaining;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [submitted, startTime, exam.timeLimit]);
+
+  // Save answers and flags to Realtime Database
+  const saveExamState = async (updates: object) => {
+    try {
+      const examRef = ref(db, `exams/${exam.id}/students/${userId}`);
+      await update(examRef, updates);
+      console.log("Exam state saved:", updates); // Debug log
+    } catch (error) {
+      console.error("Error saving exam state:", error);
+    }
+  };
 
   const handleAnswerSelect = (questionIndex: number, answerKey: string) => {
-    setSelectedAnswers((prev) => ({
-      ...prev,
-      [questionIndex]: answerKey,
-    }));
+    setSelectedAnswers((prev) => {
+      const newAnswers = { ...prev, [questionIndex]: answerKey };
+      saveExamState({
+        selectedAnswers: newAnswers,
+        flaggedQuestions,
+        startTime,
+        submitted,
+      });
+      return newAnswers;
+    });
   };
 
   const handleFlagToggle = (questionIndex: number) => {
-    setFlaggedQuestions((prev) => ({
-      ...prev,
-      [questionIndex]: !prev[questionIndex],
-    }));
+    setFlaggedQuestions((prev) => {
+      const newFlags = { ...prev, [questionIndex]: !prev[questionIndex] };
+      saveExamState({
+        selectedAnswers,
+        flaggedQuestions: newFlags,
+        startTime,
+        submitted,
+      });
+      return newFlags;
+    });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (submitted) return;
     setSubmitted(true);
+    const score = exam.questions.reduce((total, q, i) => {
+      return total + (selectedAnswers[i] === q.correctAnswer ? 1 : 0);
+    }, 0);
+
+    try {
+      // Save final submission to leaderboard
+      const leaderboardRef = ref(db, `exams/${exam.id}/leaderboard`);
+      await push(leaderboardRef, {
+        userId,
+        score,
+        selectedAnswers,
+        submittedAt: serverTimestamp(),
+      });
+
+      // Update exam state
+      await saveExamState({
+        selectedAnswers,
+        flaggedQuestions,
+        startTime,
+        submitted: true,
+      });
+    } catch (error) {
+      console.error("Error submitting exam:", error);
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
   return (
     <div className="flex flex-col w-full min-h-screen">
-      {/* <!-- Top Header --> */}
+      {/* Top Header */}
       <StudentHeader />
-      {/* <!-- Main Content --> */}
+      {/* Main Content */}
       <main className="p-6 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
         <p className="mb-5 text-sm text-gray-400">/exams/{exam.title}</p>
         <div className="flex flex-col md:flex-row p-4 gap-4">
@@ -111,6 +239,7 @@ const ExamDetail = () => {
                     <button
                       onClick={() => handleFlagToggle(i)}
                       className="flex items-center gap-1 hover:text-blue-600"
+                      disabled={submitted}
                     >
                       <FontAwesomeIcon
                         icon={faFlag}
@@ -182,7 +311,7 @@ const ExamDetail = () => {
               <strong>Description:</strong> {exam.description}
             </p>
             <p>
-              <strong>Times:</strong> {exam.time}
+              <strong>Time Limit:</strong> {exam.timeLimit / 60} minutes
             </p>
 
             {/* List of Questions */}
@@ -200,7 +329,7 @@ const ExamDetail = () => {
                           ? "bg-green-100 border-green-500"
                           : selectedAnswers[i]
                           ? "bg-red-100 border-red-500"
-                          : "bg-white border-red-500"
+                          : "bg-white border-gray-300"
                         : selectedAnswers[i]
                         ? "bg-gray-300 border-black"
                         : "bg-white hover:bg-blue-100 border-gray-300"
@@ -226,7 +355,7 @@ const ExamDetail = () => {
                     Finish Attempt
                   </button>
                   <p className="mt-2 text-sm text-center text-gray-700">
-                    Thời gian còn lại: <b>47:02</b>
+                    Thời gian còn lại: <b>{formatTime(timeRemaining)}</b>
                   </p>
                 </>
               ) : (
