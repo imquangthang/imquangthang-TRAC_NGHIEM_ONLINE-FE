@@ -83,6 +83,7 @@ const ExamDetail = () => {
         <div className="flex flex-col md:flex-row p-4 gap-4">
           {/* Main Content */}
           <div className="flex-1 space-y-4">
+            <p className="mb-5 text-sm text-gray-400">/exams/{exam?.title}</p>
             {exam.questions.map((q, i) => (
               <div
                 key={i}

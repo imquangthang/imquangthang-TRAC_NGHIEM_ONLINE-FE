@@ -88,6 +88,7 @@ const DetailExamResult = () => {
       <TeacherHeader />
       {/* <!-- Main Content --> */}
       <main className="p-6 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
+        <p className="mb-5 text-sm text-gray-400">/exams/detail-exam</p>
         <div className="flex flex-col md:flex-row p-4 gap-4">
           {/* Main Content */}
           <div className="flex-1 space-y-4">

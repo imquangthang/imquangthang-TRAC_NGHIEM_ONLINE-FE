@@ -31,7 +31,7 @@ function App() {
     Token: "sample-token",
     account: {
       Username: "sampleUser",
-      Role: "2", // 0: admin, 1: teacher, 2: student
+      Role: "1", // 0: admin, 1: teacher, 2: student
     },
   };
 
