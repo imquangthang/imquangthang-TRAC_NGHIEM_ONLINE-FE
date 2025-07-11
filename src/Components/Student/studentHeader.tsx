@@ -9,6 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const StudentHeader = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -117,8 +118,12 @@ const StudentHeader = () => {
                 </li>
               </ul>
               <div className="py-2">
-                <a
-                  href="#"
+                <Link
+                  to="/login"
+                  onClick={() => {
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("user");
+                  }}
                   className="block px-4 py-2 font-medium text-sm text-gray-700 hover:text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                 >
                   <FontAwesomeIcon
@@ -126,7 +131,7 @@ const StudentHeader = () => {
                     className="text-cordes-blue dark:text-blue-400 text-lg me-2"
                   />
                   Logout
-                </a>
+                </Link>
               </div>
             </div>
           </div>
