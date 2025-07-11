@@ -1,6 +1,5 @@
 import {
   faBell,
-  faCircle,
   faCircleInfo,
   faCircleUser,
   faMoon,
@@ -10,6 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const AdminHeader = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -26,7 +26,7 @@ const AdminHeader = () => {
           <div className="relative w-7/12">
             <FontAwesomeIcon
               icon={faSearch}
-              className="text-cordes-blue dark:text-blue-400 text-xl absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300"
+              className="text-cordes-blue text-xl absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300"
             />
             <input
               type="text"
@@ -112,8 +112,12 @@ const AdminHeader = () => {
                 </li>
               </ul>
               <div className="py-2">
-                <a
-                  href="#"
+                <Link
+                  to="/login"
+                  onClick={() => {
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("user");
+                  }}
                   className="block px-4 py-2 font-medium text-sm text-gray-700 hover:text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                 >
                   <FontAwesomeIcon
@@ -121,7 +125,7 @@ const AdminHeader = () => {
                     className="text-cordes-blue dark:text-blue-400 text-lg me-2"
                   />
                   Logout
-                </a>
+                </Link>
               </div>
             </div>
           </div>
