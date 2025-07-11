@@ -1,15 +1,15 @@
 import { useState } from "react";
 import "./logIn.css";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Logo from "../../Assets/Logo.png";
 import { toast } from "react-toastify";
 import { login } from "../../Services/authService.ts";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setLoading, setUnLoading } from "../../Redux/Reducer/loading.ts";
 import { loginUserRedux } from "../../Redux/Reducer/user.reducer.ts";
 
 const LogIn = () => {
-  const user = useSelector((state: any) => state.user) || {};
+  // const user = useSelector((state: any) => state.user) || {};
   const dispatch = useDispatch();
 
   let navigate = useNavigate();
@@ -97,7 +97,7 @@ const LogIn = () => {
                     required
                     value={valueLogin}
                     onChange={(e) => setValueLogin(e.target.value)}
-                    className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                    className="block w-full border rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                   />
                 </div>
               </div>
@@ -114,7 +114,7 @@ const LogIn = () => {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                    className="block w-full border rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                     onKeyDown={handlePressEnter}
                   />
                 </div>
@@ -134,12 +134,12 @@ const LogIn = () => {
                     </label>
                   </div>
                   <div className="text-sm text-align-right">
-                    <a
-                      href="#"
+                    <Link
+                      to="/forgot-password"
                       className="font-semibold text-indigo-600 hover:text-indigo-500"
                     >
                       Forgot password?
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>

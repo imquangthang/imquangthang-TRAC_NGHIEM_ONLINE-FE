@@ -56,7 +56,7 @@ function App() {
               visible={true}
               height="100"
               width="100"
-              colors={["#4fa94d", "#4fa94d", "#4fa94d"]}
+              colors={["#f44336", "#4fa94d", "#2196f3"]}
               ariaLabel="rotating-triangles-loading"
             />
             <p className="inline-block">Loading...</p>
