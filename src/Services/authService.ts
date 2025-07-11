@@ -1,5 +1,5 @@
 import instance from "../Setup/axios.ts";
-import type { RegisterRequest } from "../Types/Request Type/requestType.ts";
+import type { RegisterRequest } from "../Types/request.type.ts";
 
 const login = (username: string, password: string) => {
   return instance.post("/api/user/login", { username, password });

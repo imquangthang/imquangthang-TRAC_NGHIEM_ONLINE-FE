@@ -5,13 +5,6 @@ import { ref, update, onValue, push, serverTimestamp } from "firebase/database";
 import { db } from "../../../Setup/firebase"; // Ensure firebase.ts exports Realtime Database
 import StudentHeader from "../studentHeader"; // Adjusted path if needed
 
-// type Question = {
-//   question: string;
-//   answers: { [key: string]: string };
-//   correctAnswer: string;
-//   explanation?: string;
-// };
-
 const dummyExam = {
   title: "15 minutes",
   id: "drill",

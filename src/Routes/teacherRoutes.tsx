@@ -1,5 +1,5 @@
 import { Route } from "react-router-dom";
-import type { userState } from "../Redux/Types/user.type";
+import type { userState } from "../Types/user.type";
 import Teacher from "../Components/Teacher/teacher";
 import Exams from "../Components/Teacher/Exams/exams";
 import Questions from "../Components/Teacher/Questions/questions";

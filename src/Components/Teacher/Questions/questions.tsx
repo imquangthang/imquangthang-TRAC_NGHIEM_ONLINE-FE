@@ -1,13 +1,7 @@
 import { useEffect, useState } from "react";
 import TeacherHeader from "../teacherHeader";
 import mammoth from "mammoth";
-
-type Question = {
-  question: string;
-  answers: { [key: string]: string };
-  correctAnswer: string;
-  explanation: string;
-};
+import type { Question } from "../../../Types/question.type";
 
 const Questions: React.FC = () => {
   const [activeTab, setActiveTab] = useState("manual");

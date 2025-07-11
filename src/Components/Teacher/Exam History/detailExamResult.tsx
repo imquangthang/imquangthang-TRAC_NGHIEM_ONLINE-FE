@@ -4,13 +4,6 @@ import { faCheckCircle, faCheck, faX } from "@fortawesome/free-solid-svg-icons";
 import TeacherHeader from "../teacherHeader";
 import { useLocation } from "react-router-dom";
 
-// type Question = {
-//   question: string;
-//   answers: { [key: string]: string };
-//   correctAnswer: string;
-//   explanation?: string;
-// };
-
 const dummyExam = {
   title: "15 minutes",
   id: "DT001",

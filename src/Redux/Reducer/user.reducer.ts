@@ -1,50 +1,28 @@
 import { createAction, createReducer } from "@reduxjs/toolkit";
-import type { userState } from "../Types/user.type";
+import type { userState } from "../../Types/user.type";
 
 // Hàm lấy dữ liệu từ localStorage với giá trị mặc định
 const getUserFromStorage = (): userState => {
   try {
     const storedUser = localStorage.getItem("user");
-    return storedUser ? JSON.parse(storedUser) : {
-      isAuthenticated: false,
-      token: "",
-      account: {
-        groupWithRoles: {
-          _id: "",
-          name: "",
-          description: "",
-        },
-        id: "",
-        email: "",
-        username: "",
-        firstName: "",
-        lastName: "",
-        phone: "",
-        gender: "",
-        avatar: "",
-        address: "",
-      },
-    };
+    return storedUser
+      ? JSON.parse(storedUser)
+      : {
+          isAuthenticated: false,
+          Token: "",
+          account: {
+            Username: "",
+            Role: "",
+          },
+        };
   } catch (error) {
     console.error("Error parsing user from localStorage:", error);
     return {
       isAuthenticated: false,
-      token: "",
+      Token: "",
       account: {
-        groupWithRoles: {
-          _id: "",
-          name: "",
-          description: "",
-        },
-        id: "",
-        email: "",
-        username: "",
-        firstName: "",
-        lastName: "",
-        phone: "",
-        gender: "",
-        avatar: "",
-        address: "",
+        Username: "",
+        Role: "",
       },
     };
   }
@@ -54,16 +32,17 @@ const initialState: userState = getUserFromStorage();
 
 // Định nghĩa actions
 export const loginUserRedux = createAction<userState>("user/loginUser");
-export const updateUserRedux = createAction<Partial<userState["account"]>>("user/updateUser");
+export const updateUserRedux =
+  createAction<Partial<userState["account"]>>("user/updateUser");
 export const logoutUserRedux = createAction<void>("user/logoutUser");
 
 // Reducer
 const userReducer = createReducer(initialState, (builder) => {
   builder
     .addCase(loginUserRedux, (state, action) => {
-      const { isAuthenticated, token, account } = action.payload;
+      const { isAuthenticated, Token, account } = action.payload;
       state.isAuthenticated = isAuthenticated;
-      state.token = token;
+      state.Token = Token;
       state.account = account;
       // Lưu vào localStorage khi đăng nhập
       try {

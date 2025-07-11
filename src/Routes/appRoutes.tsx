@@ -5,7 +5,7 @@ import studentLayout from "../Layouts/studentLayout";
 import adminRoutes from "./adminRoutes";
 import teacherRoutes from "./teacherRoutes";
 import studentRoutes from "./studentRoutes";
-import type { userState } from "../Redux/Types/user.type";
+import type { userState } from "../Types/user.type";
 import Register from "../Components/Register/register";
 import Page404 from "../Components/Page404/Page404";
 import LogIn from "../Components/LogIn/logIn";
