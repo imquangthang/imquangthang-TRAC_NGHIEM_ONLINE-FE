@@ -159,7 +159,7 @@ const UserManagement = () => {
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
                       {listUsers && listUsers.length > 0 ? (
                         <>
-                          {listUsers.map((user, index) => (
+                          {listUsers.map((user) => (
                             <tr className="hover:bg-gray-50 dark:hover:bg-gray-700">
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-white">
                                 {user.name}

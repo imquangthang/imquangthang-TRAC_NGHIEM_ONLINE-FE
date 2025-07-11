@@ -43,7 +43,7 @@ const AdminNav = () => {
                 icon={faDashboard}
                 className="icon h-7 w-7 mx-3 text-gray-700 dark:text-gray-200"
               />
-              <p className="text-sm text-xl">Dashboard</p>
+              <p className="text-xl">Dashboard</p>
             </div>
           </Link>
         </li>
@@ -60,7 +60,7 @@ const AdminNav = () => {
                 icon={faUserGroup}
                 className="icon h-7 w-7 mx-3 text-gray-700 dark:text-gray-200"
               />
-              <p className="text-sm text-xl">User Management</p>
+              <p className="text-xl">User Management</p>
             </div>
           </Link>
         </li>
@@ -77,7 +77,7 @@ const AdminNav = () => {
                 icon={faUserShield}
                 className="icon h-7 w-7 mx-3 text-gray-700 dark:text-gray-200"
               />
-              <p className="text-sm text-xl">Roles Management</p>
+              <p className="text-xl">Roles Management</p>
             </div>
           </Link>
         </li>

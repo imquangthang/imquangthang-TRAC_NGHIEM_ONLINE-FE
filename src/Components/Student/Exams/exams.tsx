@@ -1,5 +1,3 @@
-import { faEye, faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import StudentHeader from "../studentHeader";
 import { useNavigate } from "react-router-dom";
 

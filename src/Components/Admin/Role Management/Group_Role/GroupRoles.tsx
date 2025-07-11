@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 // import { fetchGroup } from "../../../services/userService";
 // import {
 //   fetchAllRoles,
@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 //   assignRolesToGroup,
 // } from "../../../services/roleService";
 import _, { cloneDeep } from "lodash";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
 import { Skeleton } from "@mui/material";
 
 // Define interfaces for data structures
@@ -29,11 +29,11 @@ interface AssignedRole {
   isAssigned: boolean;
 }
 
-interface ApiResponse<T> {
-  EC: number;
-  EM: string;
-  DT: T;
-}
+// interface ApiResponse<T> {
+//   EC: number;
+//   EM: string;
+//   DT: T;
+// }
 
 const GroupRole = () => {
   const [userGroups, setUserGroups] = useState<Group[]>([]);
@@ -104,24 +104,24 @@ const GroupRole = () => {
     // }
   };
 
-  const buildDataRolesByGroup = (
-    groupRoles: Role[],
-    allRoles: Role[]
-  ): AssignedRole[] => {
-    const result: AssignedRole[] = [];
-    if (allRoles && allRoles.length > 0) {
-      allRoles.forEach((role) => {
-        const object: AssignedRole = {
-          url: role.url,
-          _id: role._id,
-          description: role.description,
-          isAssigned: groupRoles.some((item) => item.url === role.url),
-        };
-        result.push(object);
-      });
-    }
-    return result;
-  };
+  // const buildDataRolesByGroup = (
+  //   groupRoles: Role[],
+  //   allRoles: Role[]
+  // ): AssignedRole[] => {
+  //   const result: AssignedRole[] = [];
+  //   if (allRoles && allRoles.length > 0) {
+  //     allRoles.forEach((role) => {
+  //       const object: AssignedRole = {
+  //         url: role.url,
+  //         _id: role._id,
+  //         description: role.description,
+  //         isAssigned: groupRoles.some((item) => item.url === role.url),
+  //       };
+  //       result.push(object);
+  //     });
+  //   }
+  //   return result;
+  // };
 
   const handleSelectRole = (value: string) => {
     const _assignRolesByGroup = cloneDeep(assignRolesByGroup);

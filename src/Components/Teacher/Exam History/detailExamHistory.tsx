@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import TeacherHeader from "../teacherHeader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -22,7 +22,7 @@ interface Exam {
 
 const DetailExamHistory = () => {
   const navigate = useNavigate();
-  const [expandedExam, setExpandedExam] = useState<number | null>(null);
+  // const [expandedExam, setExpandedExam] = useState<number | null>(null);
   const location = useLocation();
   const [DetailExam, setDetailExam] = useState<Exam | null>(
     location.state?.exam || null
@@ -108,7 +108,7 @@ const DetailExamHistory = () => {
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="outline-none border-none focus:ring-0 pl-2 pr-2 w-full bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-cordes-accent dark:focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
+                  className="outline-none border-none pl-2 pr-2 w-full bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-cordes-accent dark:focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
                 />
               </button>
             </div>

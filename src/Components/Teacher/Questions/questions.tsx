@@ -53,7 +53,7 @@ const Questions: React.FC = () => {
     let parsingAnswers = false;
     let parsingExplanation = false;
 
-    lines.forEach((line, index) => {
+    lines.forEach((line) => {
       const plainLine = line.replace(/<[^>]*>/g, "").trim(); // Remove HTML tags
 
       // Match question

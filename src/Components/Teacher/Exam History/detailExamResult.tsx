@@ -1,22 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCheckCircle,
-  faPen,
-  faGear,
-  faPenToSquare,
-  faCheck,
-  faX,
-} from "@fortawesome/free-solid-svg-icons";
+import { faCheckCircle, faCheck, faX } from "@fortawesome/free-solid-svg-icons";
 import TeacherHeader from "../teacherHeader";
 import { useLocation } from "react-router-dom";
 
-type Question = {
-  question: string;
-  answers: { [key: string]: string };
-  correctAnswer: string;
-  explanation?: string;
-};
+// type Question = {
+//   question: string;
+//   answers: { [key: string]: string };
+//   correctAnswer: string;
+//   explanation?: string;
+// };
 
 const dummyExam = {
   title: "15 minutes",

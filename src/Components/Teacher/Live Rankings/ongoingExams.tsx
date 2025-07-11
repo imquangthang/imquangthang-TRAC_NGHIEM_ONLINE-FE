@@ -1,10 +1,4 @@
-import {
-  faCircle,
-  faCircleDot,
-  faEye,
-  faPen,
-  faTrash,
-} from "@fortawesome/free-solid-svg-icons";
+import { faCircle, faEye } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import TeacherHeader from "../teacherHeader";
 import { useNavigate } from "react-router";
