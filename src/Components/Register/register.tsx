@@ -6,7 +6,6 @@ import { toast } from "react-toastify";
 import { setLoading, setUnLoading } from "../../Redux/Reducer/loading.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { register } from "../../Services/authService.ts";
-import type { ResponseType } from "../../Types/Response Type/responseType.ts";
 
 const Register = () => {
   const location = useLocation();
@@ -20,13 +19,12 @@ const Register = () => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const defaultValidInput = {
-    isValidEmail: true,
-    isUsername: true,
-    isValidPassword: true,
-    isValidConfirmPassword: true,
-  };
-  const [objCheckInput, setObjCheckInput] = useState(defaultValidInput);
+  // const defaultValidInput = {
+  //   isValidEmail: true,
+  //   isUsername: true,
+  //   isValidPassword: true,
+  //   isValidConfirmPassword: true,
+  // };
 
   let navigate = useNavigate();
 
@@ -37,13 +35,7 @@ const Register = () => {
   }, []);
 
   const isValidInput = () => {
-    setObjCheckInput(defaultValidInput);
-
     if (password !== confirmPassword) {
-      setObjCheckInput({
-        ...defaultValidInput,
-        isValidConfirmPassword: false,
-      });
       toast.error("Your password is not the same");
       return false;
     }

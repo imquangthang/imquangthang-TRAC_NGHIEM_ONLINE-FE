@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import _ from "lodash";
 import { v4 as uuidv4 } from "uuid";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlusCircle, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 
@@ -53,17 +53,17 @@ const Role = () => {
     setListChilds(_listChilds);
   };
 
-  const buildDataToPersist = () => {
-    const _listChilds = _.cloneDeep(listChilds);
-    const result = Object.entries(_listChilds).map(([key, child]) => {
-      const roleChild = child as RoleData;
-      return {
-        url: roleChild.url,
-        description: roleChild.description,
-      };
-    });
-    return result;
-  };
+  // const buildDataToPersist = () => {
+  //   const _listChilds = _.cloneDeep(listChilds);
+  //   const result = Object.entries(_listChilds).map(([key, child]) => {
+  //     const roleChild = child as RoleData;
+  //     return {
+  //       url: roleChild.url,
+  //       description: roleChild.description,
+  //     };
+  //   });
+  //   return result;
+  // };
 
   const handleSave = async () => {
     // const invalidObj = Object.entries(listChilds).find(

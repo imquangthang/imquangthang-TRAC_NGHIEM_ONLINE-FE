@@ -8,12 +8,12 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import TeacherHeader from "../teacherHeader";
 
-type Question = {
-  question: string;
-  answers: { [key: string]: string };
-  correctAnswer: string;
-  explanation?: string;
-};
+// type Question = {
+//   question: string;
+//   answers: { [key: string]: string };
+//   correctAnswer: string;
+//   explanation?: string;
+// };
 
 const dummyExam = {
   title: "15 minutes",

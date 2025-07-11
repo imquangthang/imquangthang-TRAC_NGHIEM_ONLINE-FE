@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBookOpen,
   faFloppyDisk,
-  faRankingStar,
   faServer,
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -48,7 +47,7 @@ const StudentNav = () => {
                 icon={faBookOpen}
                 className="icon h-7 w-7 mx-3 text-gray-700 dark:text-gray-200"
               />
-              <p className="text-sm text-xl">Exams</p>
+              <p className="text-xl">Exams</p>
             </div>
           </Link>
         </li>
@@ -66,7 +65,7 @@ const StudentNav = () => {
                 icon={faServer}
                 className="icon h-7 w-7 mx-3 text-gray-700 dark:text-gray-200"
               />
-              <p className="text-sm text-xl">Leaderboard</p>
+              <p className="text-xl">Leaderboard</p>
             </div>
           </Link>
         </li>
@@ -103,7 +102,7 @@ const StudentNav = () => {
                 icon={faFloppyDisk}
                 className="icon h-7 w-7 mx-3 text-gray-700 dark:text-gray-200"
               />
-              <p className="text-sm text-xl">Exam History</p>
+              <p className="text-xl">Exam History</p>
             </div>
           </Link>
         </li>
