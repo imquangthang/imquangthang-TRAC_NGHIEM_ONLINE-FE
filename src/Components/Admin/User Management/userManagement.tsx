@@ -1,81 +1,43 @@
 import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AdminHeader from "../adminHeader";
+import ReactPaginate from "react-paginate";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { fetchAllUsers } from "../../../Services/userServices";
+import type { userGetByAdmin } from "../../../Types/user.type";
 
 const UserManagement = () => {
-  const listUsers = [
-    {
-      name: "John Brown",
-      username: "John",
-      email: "John@gmail.com",
-      birthday: "24/11/2004",
-      gender: "Male",
-    },
-    {
-      name: "John Brown",
-      username: "John",
-      email: "John@gmail.com",
-      birthday: "24/11/2004",
-      gender: "Male",
-    },
-    {
-      name: "John Brown",
-      username: "John",
-      email: "John@gmail.com",
-      birthday: "24/11/2004",
-      gender: "Male",
-    },
-    {
-      name: "John Brown",
-      username: "John",
-      email: "John@gmail.com",
-      birthday: "24/11/2004",
-      gender: "Male",
-    },
-    {
-      name: "John Brown",
-      username: "John",
-      email: "John@gmail.com",
-      birthday: "24/11/2004",
-      gender: "Male",
-    },
-    {
-      name: "John Brown",
-      username: "John",
-      email: "John@gmail.com",
-      birthday: "24/11/2004",
-      gender: "Male",
-    },
-    {
-      name: "John Brown",
-      username: "John",
-      email: "John@gmail.com",
-      birthday: "24/11/2004",
-      gender: "Male",
-    },
-    {
-      name: "John Brown",
-      username: "John",
-      email: "John@gmail.com",
-      birthday: "24/11/2004",
-      gender: "Male",
-    },
-    {
-      name: "John Brown",
-      username: "John",
-      email: "John@gmail.com",
-      birthday: "24/11/2004",
-      gender: "Male",
-    },
-    {
-      name: "John Brown",
-      username: "John",
-      email: "John@gmail.com",
-      birthday: "24/11/2004",
-      gender: "Male",
-    },
-  ];
+  const user = useSelector((state: any) => state.user) || {};
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
+  const [listUsers, setListUsers] = useState<userGetByAdmin[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentLimit, setCurrentLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+
+  const handlePageClick = async (event: { selected: number }) => {
+    setCurrentPage(+event.selected + 1);
+  };
+
+  const fetchUsers = async () => {
+    setIsLoadingUser(true);
+    let response: any = await fetchAllUsers(currentPage, currentLimit);
+
+    if (response) {
+      console.log("response", response);
+      setListUsers(response.objects);
+      setTotalPages(response.paging.totalPages);
+      setListUsers(response.objects);
+    }
+    setIsLoadingUser(false);
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, [currentPage]);
+
   return (
+    // const [listUsers, setListUsers] = useState([]);
     <div className="flex flex-col w-full min-h-screen">
       {/* <!-- Top Header --> */}
       <AdminHeader />
@@ -122,7 +84,7 @@ const UserManagement = () => {
                           scope="col"
                           className="px-6 py-3 text-start text-xs font-medium text-gray-500 dark:text-gray-300 uppercase"
                         >
-                          Name
+                          ID
                         </th>
                         <th
                           scope="col"
@@ -140,13 +102,13 @@ const UserManagement = () => {
                           scope="col"
                           className="px-6 py-3 text-start text-xs font-medium text-gray-500 dark:text-gray-300 uppercase"
                         >
-                          Birthday
+                          RoleID
                         </th>
                         <th
                           scope="col"
                           className="px-6 py-3 text-start text-xs font-medium text-gray-500 dark:text-gray-300 uppercase"
                         >
-                          Gender
+                          created_At
                         </th>
                         <th
                           scope="col"
@@ -157,85 +119,105 @@ const UserManagement = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
-                      {listUsers && listUsers.length > 0 ? (
-                        <>
-                          {listUsers.map((user) => (
-                            <tr className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-white">
-                                {user.name}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
-                                {user.username}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
-                                {user.email}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
-                                {user.birthday}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
-                                {user.gender}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
-                                <FontAwesomeIcon
-                                  icon={faPen}
-                                  className="text-yellow-500 dark:text-yellow-400 cursor-pointer mx-3"
-                                />
-                                <FontAwesomeIcon
-                                  icon={faTrash}
-                                  className="text-red-500 dark:text-red-400 cursor-pointer"
-                                />
-                              </td>
-                            </tr>
-                          ))}
-                        </>
+                      {isLoadingUser ? (
+                        Array.from({ length: 5 }).map((_, index) => (
+                          <tr key={index} className="animate-pulse">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="h-4 bg-gray-300 rounded w-6"></div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="h-4 bg-gray-300 rounded w-24"></div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="h-4 bg-gray-300 rounded w-32"></div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="h-4 bg-gray-300 rounded w-10"></div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="h-4 bg-gray-300 rounded w-28"></div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-end">
+                              <div className="flex justify-end gap-3">
+                                <div className="h-4 w-4 bg-gray-300 rounded-full"></div>
+                                <div className="h-4 w-4 bg-gray-300 rounded-full"></div>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
                       ) : (
-                        <></>
+                        <>
+                          {listUsers && listUsers.length > 0 ? (
+                            <>
+                              {listUsers.map((user) => (
+                                <tr
+                                  key={user.id}
+                                  className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                                >
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-white">
+                                    {user.id}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
+                                    {user.username}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
+                                    {user.email}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
+                                    {user.roleId}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
+                                    {user.createdAt}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+                                    <FontAwesomeIcon
+                                      icon={faPen}
+                                      className="text-yellow-500 dark:text-yellow-400 cursor-pointer mx-3"
+                                    />
+                                    <FontAwesomeIcon
+                                      icon={faTrash}
+                                      className="text-red-500 dark:text-red-400 cursor-pointer"
+                                    />
+                                  </td>
+                                </tr>
+                              ))}
+                            </>
+                          ) : (
+                            <>
+                              <tr>
+                                <td>Not Found User</td>
+                              </tr>
+                            </>
+                          )}
+                        </>
                       )}
                     </tbody>
                   </table>
                 </div>
                 <div className="py-1 px-4">
-                  <nav
-                    className="flex items-center space-x-1"
-                    aria-label="Pagination"
-                  >
-                    <button
-                      type="button"
-                      className="p-2.5 min-w-10 inline-flex justify-center items-center gap-x-2 text-sm rounded-full text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:bg-gray-100 dark:focus:bg-gray-700 disabled:opacity-50 disabled:pointer-events-none"
-                      aria-label="Previous"
-                    >
-                      <span aria-hidden="true">«</span>
-                      <span className="sr-only">Previous</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="min-w-10 flex justify-center items-center text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:bg-gray-100 dark:focus:bg-gray-700 py-2.5 text-sm rounded-full disabled:opacity-50 disabled:pointer-events-none"
-                      aria-current="page"
-                    >
-                      1
-                    </button>
-                    <button
-                      type="button"
-                      className="min-w-10 flex justify-center items-center text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:bg-gray-100 dark:focus:bg-gray-700 py-2.5 text-sm rounded-full disabled:opacity-50 disabled:pointer-events-none"
-                    >
-                      2
-                    </button>
-                    <button
-                      type="button"
-                      className="min-w-10 flex justify-center items-center text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:bg-gray-100 dark:focus:bg-gray-700 py-2.5 text-sm rounded-full disabled:opacity-50 disabled:pointer-events-none"
-                    >
-                      3
-                    </button>
-                    <button
-                      type="button"
-                      className="p-2.5 min-w-10 inline-flex justify-center items-center gap-x-2 text-sm rounded-full text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:bg-gray-100 dark:focus:bg-gray-700 disabled:opacity-50 disabled:pointer-events-none"
-                      aria-label="Next"
-                    >
-                      <span className="sr-only">Next</span>
-                      <span aria-hidden="true">»</span>
-                    </button>
-                  </nav>
+                  {totalPages > 0 && (
+                    <ReactPaginate
+                      nextLabel=">"
+                      onPageChange={handlePageClick}
+                      pageRangeDisplayed={3}
+                      marginPagesDisplayed={2}
+                      pageCount={totalPages}
+                      previousLabel="<"
+                      previousLinkClassName="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200"
+                      nextLinkClassName="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200"
+                      breakLabel="..."
+                      breakClassName="flex items-center justify-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300"
+                      breakLinkClassName="text-gray-700 dark:text-gray-300"
+                      renderOnZeroPageCount={null}
+                      containerClassName="flex items-center justify-center gap-2 my-6"
+                      pageClassName="flex items-center justify-center"
+                      pageLinkClassName="flex items-center justify-center px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-gray-300 rounded-md hover:bg-blue-50 dark:bg-gray-800 dark:text-blue-400 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200"
+                      activeClassName="bg-blue-600 text-white border-blue-600 dark:bg-blue-500 dark:border-blue-500"
+                      previousClassName="flex items-center justify-center"
+                      nextClassName="flex items-center justify-center"
+                      disabledClassName="opacity-50 cursor-not-allowed"
+                    />
+                  )}
                 </div>
               </div>
             </div>

@@ -6,3 +6,12 @@ export interface userState {
     Role: String;
   };
 }
+
+export type userGetByAdmin = {
+  id: string;
+  username: string;
+  email: string;
+  roleId: number;
+  createdAt: string;
+  updatedAt: string;
+};
