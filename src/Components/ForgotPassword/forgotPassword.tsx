@@ -1,13 +1,14 @@
 import { useState } from "react";
 import Logo from "../../Assets/Logo.png";
 import { toast } from "react-toastify";
+import { forgotPassword } from "../../Services/authService";
 
 const EnterEmailPage = ({ setStep }: any) => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [otpMethod, setOtpMethod] = useState("email"); // mặc định là email
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (otpMethod === "email") {
@@ -15,7 +16,15 @@ const EnterEmailPage = ({ setStep }: any) => {
         toast("Please enter your email.");
         return;
       }
-      setStep(2); // chuyển sang bước nhập mã OTP
+      // Gọi API gửi mã OTP
+      let response: any = await forgotPassword(email);
+      if (response && response.code === 200) {
+        toast("OTP sent successfully to your email.");
+        setStep(2); // chuyển sang bước nhập mã OTP
+      } else {
+        toast("Failed to send OTP. Please try again.");
+        return;
+      }
     } else if (otpMethod === "phone") {
       if (!phone) {
         toast("Please enter your phone number.");
