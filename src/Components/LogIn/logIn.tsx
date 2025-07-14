@@ -57,7 +57,7 @@ const LogIn = () => {
       }
     } else {
       // ERROR
-      toast.error(response.EM);
+      toast.error(response.msgNo);
     }
   };
 

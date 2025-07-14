@@ -14,4 +14,12 @@ const register = (data: RegisterRequest) => {
   return instance.post("/api/user/register", formData);
 };
 
-export { login, register };
+const forgotPassword = (email: string) => {
+  return instance.post("/api/user/forgot-password", JSON.stringify(email), {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};
+
+export { login, register, forgotPassword };
