@@ -6,6 +6,9 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { fetchAllUsers } from "../../../Services/userServices";
 import type { userGetByAdmin } from "../../../Types/user.type";
+import ModalUpdateUser from "./modalUpdateUser";
+import { Button, Typography } from "@mui/material";
+import ModalDelUser from "./modalDelUser";
 
 const UserManagement = () => {
   const user = useSelector((state: any) => state.user) || {};
@@ -14,6 +17,19 @@ const UserManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentLimit, setCurrentLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
+  const [openModalUpdate, setOpenModalUpdate] = useState(false);
+  const [openModalDelete, setOpenModalDelete] = useState(false);
+  const [selectedUserID, setSelectedUserID] = useState(0);
+
+  const openModalUpdateUser = (userId: number) => {
+    setSelectedUserID(userId);
+    setOpenModalUpdate(true);
+  };
+
+  const openModalDeleteUser = (userId: number) => {
+    setSelectedUserID(userId);
+    setOpenModalDelete(true);
+  };
 
   const handlePageClick = async (event: { selected: number }) => {
     setCurrentPage(+event.selected + 1);
@@ -24,7 +40,6 @@ const UserManagement = () => {
     let response: any = await fetchAllUsers(currentPage, currentLimit);
 
     if (response) {
-      console.log("response", response);
       setListUsers(response.objects);
       setTotalPages(response.paging.totalPages);
       setListUsers(response.objects);
@@ -34,10 +49,9 @@ const UserManagement = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [currentPage]);
+  }, [currentPage, openModalDelete]);
 
   return (
-    // const [listUsers, setListUsers] = useState([]);
     <div className="flex flex-col w-full min-h-screen">
       {/* <!-- Top Header --> */}
       <AdminHeader />
@@ -173,10 +187,16 @@ const UserManagement = () => {
                                     <FontAwesomeIcon
                                       icon={faPen}
                                       className="text-yellow-500 dark:text-yellow-400 cursor-pointer mx-3"
+                                      onClick={() =>
+                                        openModalUpdateUser(parseInt(user.id))
+                                      }
                                     />
                                     <FontAwesomeIcon
                                       icon={faTrash}
                                       className="text-red-500 dark:text-red-400 cursor-pointer"
+                                      onClick={() =>
+                                        openModalDeleteUser(parseInt(user.id))
+                                      }
                                     />
                                   </td>
                                 </tr>
@@ -219,6 +239,19 @@ const UserManagement = () => {
                     />
                   )}
                 </div>
+                <ModalUpdateUser
+                  idUser={selectedUserID}
+                  open={openModalUpdate}
+                  onClose={() => setOpenModalUpdate(false)}
+                  title="Update User Form"
+                />
+
+                <ModalDelUser
+                  idUser={selectedUserID}
+                  open={openModalDelete}
+                  onClose={() => setOpenModalDelete(false)}
+                  title="Update User Form"
+                />
               </div>
             </div>
           </div>

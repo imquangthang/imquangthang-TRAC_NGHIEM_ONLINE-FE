@@ -15,3 +15,11 @@ export type userGetByAdmin = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type userUpdateByAdmin = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  birthDate: String;
+  gender: number;
+};

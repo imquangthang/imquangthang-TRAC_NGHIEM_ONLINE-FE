@@ -10,9 +10,15 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import ModalUpdateUser from "./User Management/modalUpdateUser";
 
 const AdminHeader = () => {
   const [darkMode, setDarkMode] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const openModal = () => {
+    setOpen(true);
+  };
 
   const changeTheme = () => {
     document.documentElement.classList.toggle("dark");
@@ -96,7 +102,10 @@ const AdminHeader = () => {
                 className="py-2 text-sm text-gray-700 dark:text-gray-200"
                 aria-labelledby="dropdownInformationButton"
               >
-                <li className="font-medium block px-4 py-2 hover:cursor-pointer hover:bg-gray-100 text-gray-700 hover:text-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-gray-200">
+                <li
+                  className="font-medium block px-4 py-2 hover:cursor-pointer hover:bg-gray-100 text-gray-700 hover:text-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-gray-200"
+                  onClick={() => openModal()}
+                >
                   <FontAwesomeIcon
                     icon={faCircleUser}
                     className="text-cordes-blue dark:text-blue-400 text-lg me-2"
@@ -115,7 +124,7 @@ const AdminHeader = () => {
                 <Link
                   to="/login"
                   onClick={() => {
-                    localStorage.removeItem("token");
+                    localStorage.removeItem("jwt");
                     localStorage.removeItem("user");
                   }}
                   className="block px-4 py-2 font-medium text-sm text-gray-700 hover:text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
@@ -131,6 +140,12 @@ const AdminHeader = () => {
           </div>
         </div>
       </div>
+      <ModalUpdateUser
+        idUser={2}
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Update User Form"
+      />
     </header>
   );
 };
