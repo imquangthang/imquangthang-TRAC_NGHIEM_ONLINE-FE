@@ -61,6 +61,7 @@ const ExamDetail = ({ userId }: { userId: string }) => {
   const [timeRemaining, setTimeRemaining] = useState(exam.timeLimit);
   const [startTime, setStartTime] = useState<number | null>(null);
   const selectedAnswersRef = useRef(selectedAnswers);
+  const [openModalSubmit, setOpenModalSubmit] = useState(false);
 
   useEffect(() => {
     selectedAnswersRef.current = selectedAnswers;
@@ -161,6 +162,7 @@ const ExamDetail = ({ userId }: { userId: string }) => {
 
   const handleSubmit = async () => {
     if (submitted) return;
+    setOpenModalSubmit(false);
     setSubmitted(true);
 
     const answers = selectedAnswersRef.current;
@@ -334,7 +336,7 @@ const ExamDetail = ({ userId }: { userId: string }) => {
                 <>
                   <button
                     className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-500"
-                    onClick={handleSubmit}
+                    onClick={() => setOpenModalSubmit(true)}
                   >
                     Finish Attempt
                   </button>
@@ -346,6 +348,36 @@ const ExamDetail = ({ userId }: { userId: string }) => {
                 <p className="mt-4 font-semibold text-green-700">
                   You have submitted the exam.
                 </p>
+              )}
+
+              {openModalSubmit && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 dark:bg-opacity-75 transition-opacity duration-300">
+                  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4 p-6 sm:max-w-lg transform transition-all duration-300">
+                    <h2 className="text-xl text-center font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                      Your test time left
+                    </h2>
+                    <p className="text-red-500 text-7xl font-bold mb-1 text-center border-b-2 border-gray-200 dark:border-gray-700 pb-3">
+                      {formatTime(timeRemaining)}
+                    </p>
+                    <p className="text-gray-700 dark:text-gray-300 mb-4 text-center">
+                      Are you sure you want to finish the test?
+                    </p>
+                    <div className="flex justify-end gap-3">
+                      <button
+                        onClick={() => setOpenModalSubmit(false)}
+                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 transition-colors duration-200"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleSubmit}
+                        className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:border-blue-500 dark:hover:bg-blue-600 transition-colors duration-200"
+                      >
+                        Submit
+                      </button>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           </div>
