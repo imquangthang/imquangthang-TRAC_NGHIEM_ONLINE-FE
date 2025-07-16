@@ -13,7 +13,10 @@ const studentRoutes = (Layouts: () => React.JSX.Element, user: userState) => {
     <Route path="/student" element={<Layouts />}>
       <Route index element={<Student />} />
       <Route path="exams" element={<Exams />} />
-      <Route path="exam/:id" element={<ExamDetail userId="1" />} />
+      <Route
+        path="exam/:id"
+        element={<ExamDetail userId={user?.account?.Id} />}
+      />
       <Route path="leaderboard" element={<Leaderboard />} />
       <Route path="leaderboard/:id" element={<LeaderboardDetail />} />
       <Route path="exam-history" element={<ExamHistory />} />
