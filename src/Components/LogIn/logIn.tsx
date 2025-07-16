@@ -27,12 +27,14 @@ const LogIn = () => {
       // Success
       let Role = response.data?.Role;
       let Token = response.data?.Token;
+      let Id = response.data?.Id;
       let Username = response.data?.Username;
 
       let data = {
         isAuthenticated: true,
         Token,
         account: {
+          Id,
           Username,
           Role,
         },

@@ -2,8 +2,9 @@ export interface userState {
   isAuthenticated: boolean;
   Token: string;
   account: {
-    Username: String;
-    Role: String;
+    Id: string;
+    Username: string;
+    Role: string;
   };
 }
 
@@ -20,6 +21,6 @@ export type userUpdateByAdmin = {
   id: number;
   firstName: string;
   lastName: string;
-  birthDate: String;
+  birthDate: string;
   gender: number;
 };
