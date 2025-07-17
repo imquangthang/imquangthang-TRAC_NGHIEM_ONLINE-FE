@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import StudentHeader from "./studentHeader";
 import { faPlus, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
+import Header from "../Header/header";
 
 const Student: React.FC = () => {
   const navigare = useNavigate();
@@ -44,7 +44,7 @@ const Student: React.FC = () => {
   ];
   return (
     <>
-      <StudentHeader />
+      <Header />
 
       <main>
         <div className="flex gap-5 p-6 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">

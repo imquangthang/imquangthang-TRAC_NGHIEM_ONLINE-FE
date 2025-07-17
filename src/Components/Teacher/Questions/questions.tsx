@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import TeacherHeader from "../teacherHeader";
 import mammoth from "mammoth";
 import type { Question } from "../../../Types/question.type";
+import Header from "../../Header/header";
 
 const Questions: React.FC = () => {
   const [activeTab, setActiveTab] = useState("manual");
@@ -127,7 +127,7 @@ const Questions: React.FC = () => {
 
   return (
     <>
-      <TeacherHeader />
+      <Header />
 
       <main className="p-6 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2 min-h-screen">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">

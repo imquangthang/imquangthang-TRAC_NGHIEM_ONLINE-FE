@@ -1,4 +1,4 @@
-import AdminHeader from "../adminHeader";
+import Header from "../../Header/header";
 import GroupRole from "./Group_Role/GroupRoles";
 import Role from "./Role/Roles";
 
@@ -6,7 +6,7 @@ const RoleManagement = () => {
   return (
     <div className="flex flex-col w-full min-h-screen">
       {/* <!-- Top Header --> */}
-      <AdminHeader />
+      <Header />
       {/* <!-- Main Content --> */}
       <main className="p-6 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
         <div className="text-black dark:text-white">

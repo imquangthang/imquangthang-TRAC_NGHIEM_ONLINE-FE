@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { ref, onValue } from "firebase/database";
 import { db } from "../../../Setup/firebase"; // Ensure firebase.ts exports Realtime Database
-import TeacherHeader from "../teacherHeader"; // Adjusted path if needed
+import Header from "../../Header/header";
 
 interface Student {
   userId: string;
@@ -103,7 +103,7 @@ const LiveRankings = () => {
   return (
     <div className="flex flex-col w-full min-h-screen">
       {/* Top Header */}
-      <TeacherHeader />
+      <Header />
       {/* Main Content */}
       <main className="p-6 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
         <p className="mb-5 text-sm text-gray-400">/exams/Live Exam Rankings</p>
