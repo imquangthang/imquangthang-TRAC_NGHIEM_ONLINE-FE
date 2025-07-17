@@ -19,6 +19,7 @@ const UserManagement = () => {
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [selectedUserID, setSelectedUserID] = useState(0);
+  const [searchKeyword, setSearchKeyword] = useState("");
 
   const openModalUpdateUser = (userId: number) => {
     setSelectedUserID(userId);
@@ -36,7 +37,11 @@ const UserManagement = () => {
 
   const fetchUsers = async () => {
     setIsLoadingUser(true);
-    let response: any = await fetchAllUsers(currentPage, currentLimit);
+    let response: any = await fetchAllUsers(
+      searchKeyword,
+      currentPage,
+      currentLimit
+    );
 
     if (response) {
       setListUsers(response.objects);
@@ -45,14 +50,20 @@ const UserManagement = () => {
     setIsLoadingUser(false);
   };
 
+  const handleSearch = (value: string) => {
+    setSearchKeyword(value);
+    console.log("Giá trị tìm kiếm từ Header:", value);
+    // ... thực hiện lọc dữ liệu, call API, v.v.
+  };
+
   useEffect(() => {
     fetchUsers();
-  }, [currentPage, openModalDelete]);
+  }, [currentPage, openModalDelete, searchKeyword]);
 
   return (
     <div className="flex flex-col w-full min-h-screen">
       {/* <!-- Top Header --> */}
-      <Header />
+      <Header onSearch={handleSearch} />
       {/* <!-- Main Content --> */}
       <main className="p-6 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
         <div className="flex flex-col items-center justify-center w-full">
