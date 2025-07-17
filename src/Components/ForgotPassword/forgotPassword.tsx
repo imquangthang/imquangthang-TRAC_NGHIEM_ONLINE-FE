@@ -1,7 +1,8 @@
 import { useState } from "react";
 import Logo from "../../Assets/Logo.png";
 import { toast } from "react-toastify";
-import { forgotPassword } from "../../Services/authService";
+import { forgotPassword, resetPassword } from "../../Services/authService";
+import { useNavigate } from "react-router-dom";
 
 const EnterEmailPage = ({ setStep }: any) => {
   const [email, setEmail] = useState("");
@@ -144,18 +145,21 @@ const EnterEmailPage = ({ setStep }: any) => {
   );
 };
 
-const EnterCodePage = ({ setStep }: any) => {
-  const [code, setCode] = useState("");
+const EnterCodePage = ({ setStep, code, setCode }: any) => {
+  // const [code, setCode] = useState("");
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!code || code.length !== 6) {
-      toast("Please enter a valid 6-character code.");
-      return;
-    }
+    // if (!code || code.length !== 6) {
+    //   toast("Please enter a valid 6-character code.");
+    //   return;
+    // }
+
+    console.log("Code entered:", code);
 
     setStep(3); // chuyển sang bước reset password
   };
+
   return (
     <div className="bg-gradient-to-b from-white to-sky-300 min-h-screen flex items-center justify-center">
       <div className="flex min-h-full w-[400px] flex-col justify-center px-6 py-12 lg:px-8 border rounded-2xl bg-white shadow-lg">
@@ -211,10 +215,10 @@ const EnterCodePage = ({ setStep }: any) => {
   );
 };
 
-const ResetPasswordPage = () => {
+const ResetPasswordPage = ({ code, navigate }: any) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPassword || !confirmPassword) {
       toast("Please fill in both password fields.");
@@ -227,7 +231,16 @@ const ResetPasswordPage = () => {
     }
 
     // Xử lý logic reset password ở đây
-    toast("Password reset successfully!");
+    try {
+      let response: any = await resetPassword(code, newPassword);
+      if (response && response.code === 200) {
+        toast("Password reset successfully!");
+      } else toast("Failed to reset password. Please try again.");
+    } catch (error) {
+      toast("Failed to reset password. Please try again.");
+    }
+
+    navigate("/login"); // Chuyển hướng về trang đăng nhập sau khi reset thành công
   };
 
   return (
@@ -298,15 +311,16 @@ const ResetPasswordPage = () => {
 
 const ForgotPassword = () => {
   const [step, setStep] = useState(1); // useState phải đặt trong component
-
+  const [code, setCode] = useState("");
+  const navigate = useNavigate();
   return (
     <>
       {step === 1 ? (
         <EnterEmailPage setStep={setStep} />
       ) : step === 2 ? (
-        <EnterCodePage setStep={setStep} />
+        <EnterCodePage setStep={setStep} code={code} setCode={setCode} />
       ) : (
-        <ResetPasswordPage />
+        <ResetPasswordPage code={code} navigate={navigate} />
       )}
     </>
   );
