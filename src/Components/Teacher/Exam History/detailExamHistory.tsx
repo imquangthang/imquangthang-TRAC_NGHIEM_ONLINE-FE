@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import TeacherHeader from "../teacherHeader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import Header from "../../Header/header";
 
 interface StudentResult {
   id: number;
@@ -55,7 +55,7 @@ const DetailExamHistory = () => {
   return (
     <div className="flex flex-col w-full min-h-screen">
       {/* <!-- Top Header --> */}
-      <TeacherHeader />
+      <Header />
       {/* <!-- Main Content --> */}
       <main>
         <div className="flex gap-5 p-6 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">

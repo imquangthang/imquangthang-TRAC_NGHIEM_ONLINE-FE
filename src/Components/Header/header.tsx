@@ -8,11 +8,19 @@ import {
   faSun,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import { use, useState } from "react";
 import { Link } from "react-router-dom";
+import ModalUpdateUser from "../Admin/User Management/modalUpdateUser";
+import { useSelector } from "react-redux";
 
-const TeacherHeader = () => {
+const Header = () => {
+  const user = useSelector((state: any) => state.user) || {};
   const [darkMode, setDarkMode] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const openModal = () => {
+    setOpen(true);
+  };
 
   const changeTheme = () => {
     document.documentElement.classList.toggle("dark");
@@ -60,16 +68,12 @@ const TeacherHeader = () => {
               className="p-2 flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               type="button"
             >
-              <div className="text-end">
-                Nguyen Ngoc Anh <br />
-                Teacher
-              </div>
-
               <img
                 src="https://www.pngmart.com/files/21/Admin-Profile-PNG-Clipart.png"
                 alt="Profile"
                 className="w-8 h-8 rounded-full"
               />
+              {user?.account?.Username}
               <svg
                 className="w-2.5 h-2.5 ms-3 text-gray-600 dark:text-gray-300"
                 aria-hidden="true"
@@ -86,22 +90,26 @@ const TeacherHeader = () => {
                 />
               </svg>
             </button>
-
             <div
               id="dropdownInformation"
               className="z-10 hidden absolute bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-600 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm w-44"
             >
               <div className="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                <div className="font-medium truncate">Nguyen Ngoc Anh</div>
+                <div className="font-medium truncate">
+                  {user?.account?.Username}
+                </div>
                 <div className="text-gray-500 dark:text-gray-400">
-                  nnanh@gmail.com
+                  email@gmail.com
                 </div>
               </div>
               <ul
                 className="py-2 text-sm text-gray-700 dark:text-gray-200"
                 aria-labelledby="dropdownInformationButton"
               >
-                <li className="font-medium block px-4 py-2 hover:cursor-pointer hover:bg-gray-100 text-gray-700 hover:text-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-gray-200">
+                <li
+                  className="font-medium block px-4 py-2 hover:cursor-pointer hover:bg-gray-100 text-gray-700 hover:text-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-gray-200"
+                  onClick={() => openModal()}
+                >
                   <FontAwesomeIcon
                     icon={faCircleUser}
                     className="text-cordes-blue dark:text-blue-400 text-lg me-2"
@@ -136,7 +144,13 @@ const TeacherHeader = () => {
           </div>
         </div>
       </div>
+      <ModalUpdateUser
+        idUser={user?.account?.Id}
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Update User Form"
+      />
     </header>
   );
 };
-export default TeacherHeader;
+export default Header;

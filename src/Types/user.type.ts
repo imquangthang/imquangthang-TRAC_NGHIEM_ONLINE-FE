@@ -14,7 +14,7 @@ export type userGetByAdmin = {
   email: string;
   roleId: number;
   createdAt: string;
-  updatedAt: string;
+  createdBy: string;
 };
 
 export type userUpdateByAdmin = {

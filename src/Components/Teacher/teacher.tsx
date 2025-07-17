@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import TeacherHeader from "./teacherHeader";
 import { faPlus, faSearch } from "@fortawesome/free-solid-svg-icons";
+import Header from "../Header/header";
 
 const Teacher: React.FC = () => {
   const listExams = [
@@ -37,7 +37,7 @@ const Teacher: React.FC = () => {
   ];
   return (
     <>
-      <TeacherHeader />
+      <Header />
 
       <main>
         <div className="flex gap-5 p-6 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">

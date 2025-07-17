@@ -11,7 +11,7 @@ import {
   faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import AdminHeader from "../adminHeader";
+import Header from "../../Header/header";
 
 const Dashboard: React.FC = () => {
   return (
@@ -19,7 +19,7 @@ const Dashboard: React.FC = () => {
       <div className="min-h-screen w-full">
         <div className="w-full">
           {/* <!-- Top Header --> */}
-          <AdminHeader />
+          <Header />
 
           {/* <!-- Main Dashboard Content --> */}
           <main className="p-6 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">

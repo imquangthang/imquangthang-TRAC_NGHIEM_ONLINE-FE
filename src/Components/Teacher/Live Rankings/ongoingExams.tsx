@@ -1,7 +1,7 @@
 import { faCircle, faEye } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import TeacherHeader from "../teacherHeader";
 import { useNavigate } from "react-router";
+import Header from "../../Header/header";
 
 const OngoingExams = () => {
   const Navigate = useNavigate();
@@ -30,7 +30,7 @@ const OngoingExams = () => {
   return (
     <div className="flex flex-col w-full min-h-screen">
       {/* <!-- Top Header --> */}
-      <TeacherHeader />
+      <Header />
       {/* <!-- Main Content --> */}
       <main className="p-6 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
         <div className="flex flex-col items-center justify-center w-full">

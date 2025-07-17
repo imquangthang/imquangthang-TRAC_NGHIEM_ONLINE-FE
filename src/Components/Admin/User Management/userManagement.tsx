@@ -1,21 +1,20 @@
 import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import AdminHeader from "../adminHeader";
 import ReactPaginate from "react-paginate";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { fetchAllUsers } from "../../../Services/userServices";
 import type { userGetByAdmin } from "../../../Types/user.type";
 import ModalUpdateUser from "./modalUpdateUser";
-import { Button, Typography } from "@mui/material";
 import ModalDelUser from "./modalDelUser";
+import Header from "../../Header/header";
 
 const UserManagement = () => {
   const user = useSelector((state: any) => state.user) || {};
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [listUsers, setListUsers] = useState<userGetByAdmin[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [currentLimit, setCurrentLimit] = useState(10);
+  const [currentLimit, setCurrentLimit] = useState(3);
   const [totalPages, setTotalPages] = useState(0);
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
@@ -42,7 +41,6 @@ const UserManagement = () => {
     if (response) {
       setListUsers(response.objects);
       setTotalPages(response.paging.totalPages);
-      setListUsers(response.objects);
     }
     setIsLoadingUser(false);
   };
@@ -54,7 +52,7 @@ const UserManagement = () => {
   return (
     <div className="flex flex-col w-full min-h-screen">
       {/* <!-- Top Header --> */}
-      <AdminHeader />
+      <Header />
       {/* <!-- Main Content --> */}
       <main className="p-6 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
         <div className="flex flex-col items-center justify-center w-full">
