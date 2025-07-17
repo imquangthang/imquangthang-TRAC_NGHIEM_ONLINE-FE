@@ -1,16 +1,16 @@
-import { useState } from "react";
+// import { useState } from "react";
 import StudentHeader from "../studentHeader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faSearch } from "@fortawesome/free-solid-svg-icons";
-import { useNavigate } from "react-router-dom";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
+// import { useNavigate } from "react-router-dom";
 
-interface StudentResult {
-  id: number;
-  name: string;
-  score: number;
-  answers: string;
-  duration: number;
-}
+// interface StudentResult {
+//   id: number;
+//   name: string;
+//   score: number;
+//   answers: string;
+//   duration: number;
+// }
 
 interface ExamHistoryStudent {
   id: number;
@@ -21,8 +21,8 @@ interface ExamHistoryStudent {
 }
 
 const ExamHistory = () => {
-  const [expandedExam, setExpandedExam] = useState<number | null>(null);
-  const navigate = useNavigate();
+  // const [expandedExam, setExpandedExam] = useState<number | null>(null);
+  // const navigate = useNavigate();
 
   const exams: ExamHistoryStudent[] = [
     {
@@ -180,7 +180,7 @@ const ExamHistory = () => {
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="outline-none border-none focus:ring-0 pl-2 pr-2 w-full bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-cordes-accent dark:focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
+                  className="outline-none border-none pl-2 pr-2 w-full bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-cordes-accent dark:focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
                 />
               </button>
             </div>
