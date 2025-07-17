@@ -1,9 +1,14 @@
 import instance from "../Setup/axios.ts";
 import type { userUpdateByAdmin } from "../Types/user.type.ts";
 
-const fetchAllUsers = (CurrentPage: number, PageSize: number) => {
+const fetchAllUsers = (
+  Username: string,
+  CurrentPage: number,
+  PageSize: number
+) => {
   return instance.get("/api/user", {
     params: {
+      Username: Username,
       CurrentPage: CurrentPage,
       PageSize: PageSize,
     },

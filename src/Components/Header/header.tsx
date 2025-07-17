@@ -8,15 +8,16 @@ import {
   faSun,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { use, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import ModalUpdateUser from "../Admin/User Management/modalUpdateUser";
 import { useSelector } from "react-redux";
 
-const Header = () => {
+const Header = ({ onSearch }: { onSearch?: (value: string) => void }) => {
   const user = useSelector((state: any) => state.user) || {};
   const [darkMode, setDarkMode] = useState(false);
   const [open, setOpen] = useState(false);
+  const [valueSearch, setValueSearch] = useState("");
 
   const openModal = () => {
     setOpen(true);
@@ -27,6 +28,17 @@ const Header = () => {
     setDarkMode(document.documentElement.classList.contains("dark"));
     localStorage.setItem("darkMode", darkMode ? "true" : "false");
   };
+
+  const sendValueSearch = () => {
+    if (onSearch) onSearch(valueSearch); // Gửi dữ liệu về component cha
+  };
+
+  const handlePressEnter = (event: any) => {
+    if (event.code === "Enter") {
+      sendValueSearch();
+    }
+  };
+
   return (
     <header className="shadow-sm border rounded bg-white border-gray-200 dark:border-gray-700 dark:bg-gray-900">
       <div className="px-6 py-1">
@@ -34,12 +46,16 @@ const Header = () => {
           <div className="relative w-7/12">
             <FontAwesomeIcon
               icon={faSearch}
-              className="text-cordes-blue text-xl absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300"
+              className="text-cordes-blue text-xl absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300 hover:cursor-pointer"
+              onClick={sendValueSearch}
             />
             <input
               type="text"
               placeholder="Search..."
+              value={valueSearch}
+              onChange={(e) => setValueSearch(e.target.value)}
               className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-cordes-accent dark:focus:ring-blue-500 focus:border-transparent outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              onKeyDown={handlePressEnter}
             />
           </div>
 
