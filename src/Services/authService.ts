@@ -22,4 +22,16 @@ const forgotPassword = (email: string) => {
   });
 };
 
-export { login, register, forgotPassword };
+const resetPassword = (code: string, newPassword: string) => {
+  return instance.post(
+    "/api/user/reset-password",
+    JSON.stringify({ token: code, newPassword: newPassword }),
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+};
+
+export { login, register, forgotPassword, resetPassword };
