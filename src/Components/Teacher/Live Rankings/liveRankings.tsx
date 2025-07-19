@@ -1,19 +1,20 @@
 import { useState, useEffect } from "react";
 import { ref, onValue } from "firebase/database";
-import { db } from "../../../Setup/firebase"; // Ensure firebase.ts exports Realtime Database
+import { db } from "../../../Setup/firebase";
 import Header from "../../Header/header";
 
 interface Student {
   userId: string;
-  name: string; // Fetched from user profile or fallback to userId
+  name: string;
   answered: number;
   total: number;
-  startTime: number; // Unix timestamp from Realtime Database
+  startTime: number;
+  endTime?: number; // Thêm endTime
   submitted: boolean;
 }
 
-const examId = "drill"; // Matches ExamDetail's exam.id
-const totalQuestions = 3; // From dummyExam.questions.length in ExamDetail
+const examId = "drill";
+const totalQuestions = 3;
 
 const LiveRankings = () => {
   const [students, setStudents] = useState<Student[]>([]);
@@ -23,9 +24,9 @@ const LiveRankings = () => {
   }>({});
 
   // Format elapsed time
-  const formatElapsedTime = (startTime: number) => {
-    const now = Date.now();
-    const elapsedSeconds = Math.floor((now - startTime) / 1000);
+  const formatElapsedTime = (startTime: number, endTime?: number) => {
+    const endTimeToUse = endTime || Date.now();
+    const elapsedSeconds = Math.floor((endTimeToUse - startTime) / 1000);
     const minutes = Math.floor(elapsedSeconds / 60);
     const seconds = elapsedSeconds % 60;
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
@@ -50,10 +51,11 @@ const LiveRankings = () => {
             : 0;
           return {
             userId,
-            name: studentData.name || userId, // Fallback to userId if name not available
+            name: studentData.name || userId,
             answered,
             total: totalQuestions,
             startTime: studentData.startTime || Date.now(),
+            endTime: studentData.endTime, // Lấy endTime từ database
             submitted: studentData.submitted || false,
           };
         }
@@ -67,9 +69,18 @@ const LiveRankings = () => {
         return a.startTime - b.startTime;
       });
 
-      // Initialize elapsed times
+      // Calculate elapsed times cho từng học sinh
       const initialElapsedTimes = studentList.reduce((acc, student) => {
-        acc[student.userId] = formatElapsedTime(student.startTime);
+        if (student.submitted && student.endTime) {
+          // Nếu đã nộp bài, tính thời gian từ startTime đến endTime
+          acc[student.userId] = formatElapsedTime(
+            student.startTime,
+            student.endTime
+          );
+        } else {
+          // Nếu chưa nộp bài, tính thời gian từ startTime đến hiện tại
+          acc[student.userId] = formatElapsedTime(student.startTime);
+        }
         return acc;
       }, {} as { [userId: string]: string });
 
@@ -78,20 +89,20 @@ const LiveRankings = () => {
       setElapsedTimes(initialElapsedTimes);
     });
 
-    // Cleanup listener on unmount
     return () => unsubscribeStudents();
   }, []);
 
-  // Update elapsed times every second
+  // Update elapsed times every second - CHỈ cho học sinh chưa nộp bài
   useEffect(() => {
     const timer = setInterval(() => {
       setElapsedTimes((prev) => {
         const updatedTimes = { ...prev };
         students.forEach((student) => {
           if (!student.submitted) {
-            // Only update time for students who haven't submitted
+            // CHỈ cập nhật thời gian cho học sinh chưa nộp bài
             updatedTimes[student.userId] = formatElapsedTime(student.startTime);
           }
+          // Nếu đã nộp bài, giữ nguyên thời gian đã tính (endTime - startTime)
         });
         return updatedTimes;
       });
@@ -161,7 +172,15 @@ const LiveRankings = () => {
                         {elapsedTimes[student.userId] || "0:00"}
                       </td>
                       <td className="p-3">
-                        {student.submitted ? "Submitted" : "In Progress"}
+                        <span
+                          className={`px-2 py-1 rounded text-xs ${
+                            student.submitted
+                              ? "bg-green-100 text-green-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
+                        >
+                          {student.submitted ? "Submitted" : "In Progress"}
+                        </span>
                       </td>
                     </tr>
                   );

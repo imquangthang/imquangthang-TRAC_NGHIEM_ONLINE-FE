@@ -5,13 +5,21 @@ import type { ModalUpdateUserProps } from "../../../Interface/modal.interface";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { updateUser } from "../../../Services/userServices";
+import { updateUserRedux } from "../../../Redux/Reducer/user.reducer";
+import { useDispatch } from "react-redux";
 
 const ModalUpdateUser: React.FC<ModalUpdateUserProps> = ({
   idUser,
+  firstName = "",
+  lastName = "",
+  birthDate = "",
+  gender = 0,
   open,
   onClose,
   title,
 }) => {
+  const dispatch = useDispatch();
+
   const [userData, setUserData] = useState<userUpdateByAdmin>({
     id: 0,
     firstName: "",
@@ -20,16 +28,30 @@ const ModalUpdateUser: React.FC<ModalUpdateUserProps> = ({
     gender: 0,
   });
 
+  function formatDateForInput(dateStr: string): string {
+    // Kiểm tra định dạng: dd/mm/yyyy hoặc dd/mm/yyyy hh:mm:ss
+    const regex = /^\d{2}\/\d{2}\/\d{4}(?:\s.*)?$/;
+    if (!regex.test(dateStr)) {
+      // Nếu không đúng định dạng, có thể trả về nguyên hoặc rỗng tùy bạn
+      return dateStr;
+    }
+
+    const [day, month, yearWithTime] = dateStr.split("/");
+    const [year] = yearWithTime.split(" ");
+
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  }
+
   useEffect(() => {
     // Fetch user data by idUser when the modal opens
     if (open && idUser) {
       // Simulate fetching user data
       setUserData({
         id: idUser,
-        firstName: "",
-        lastName: "",
-        birthDate: "",
-        gender: 0, // Default value, update as needed
+        firstName: firstName,
+        lastName: lastName,
+        birthDate: formatDateForInput(birthDate),
+        gender: gender,
       });
     }
   }, [open, idUser]);
@@ -47,7 +69,25 @@ const ModalUpdateUser: React.FC<ModalUpdateUserProps> = ({
     let response: any = await updateUser(userData);
     if (response && response.code === 200) {
       toast("User updated successfully");
-      // Optionally, you can reset the form or close the modal
+      let updatedAccount = {
+        Id: userData.id.toString(),
+        FirstName: userData.firstName,
+        LastName: userData.lastName,
+        Birthdate: userData.birthDate,
+        Gender: userData.gender.toString(),
+      };
+      dispatch(updateUserRedux(updatedAccount));
+
+      // ✅ Cập nhật localStorage
+      const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+      const newUser = {
+        ...currentUser,
+        account: {
+          ...currentUser.account,
+          ...updatedAccount,
+        },
+      };
+      localStorage.setItem("user", JSON.stringify(newUser));
     } else {
       toast.error("Failed to update user");
     }
@@ -136,11 +176,7 @@ const ModalUpdateUser: React.FC<ModalUpdateUserProps> = ({
               type="date"
               id="birthDate"
               name="birthDate"
-              value={
-                typeof userData.birthDate === "string"
-                  ? userData.birthDate
-                  : String(userData.birthDate)
-              }
+              value={userData.birthDate}
               onChange={handleInputChange}
               required
               className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-colors duration-200"

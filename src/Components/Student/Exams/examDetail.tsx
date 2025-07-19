@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFlag } from "@fortawesome/free-solid-svg-icons";
-import { ref, update, onValue, push, serverTimestamp } from "firebase/database"; // Changed set to update
-import { db } from "../../../Setup/firebase"; // Ensure firebase.ts exports Realtime Database
+import { ref, update, onValue, push, serverTimestamp } from "firebase/database";
+import { db } from "../../../Setup/firebase";
 import Header from "../../Header/header";
 
 const dummyExam = {
@@ -87,8 +87,8 @@ const ExamDetail = ({ userId }: { userId: string }) => {
           }
         } else {
           // New exam attempt
-          const newStartTime = serverTimestamp();
-          // setStartTime(newStartTime);
+          const newStartTime = Date.now();
+          setStartTime(newStartTime);
           update(examRef, {
             startTime: newStartTime,
             selectedAnswers: {},
@@ -131,7 +131,7 @@ const ExamDetail = ({ userId }: { userId: string }) => {
   // Save answers and flags to Realtime Database
   const saveExamState = async (updates: object) => {
     const examRef = ref(db, `exams/${exam.id}/students/${userId}`);
-    await update(examRef, updates); // Use update instead of set
+    await update(examRef, updates);
   };
 
   const handleAnswerSelect = (questionIndex: number, answerKey: string) => {
@@ -166,6 +166,7 @@ const ExamDetail = ({ userId }: { userId: string }) => {
     setSubmitted(true);
 
     const answers = selectedAnswersRef.current;
+    const currentTime = Date.now(); // Lấy thời gian hiện tại khi nộp bài
 
     const score = exam.questions.reduce((total, q, i) => {
       return total + (answers[i] === q.correctAnswer ? 1 : 0);
@@ -179,10 +180,12 @@ const ExamDetail = ({ userId }: { userId: string }) => {
         submittedAt: serverTimestamp(),
       });
 
+      // LƯU ENDTIME KHI NỘP BÀI
       await saveExamState({
         selectedAnswers: answers,
         flaggedQuestions,
         startTime,
+        endTime: currentTime, // Lưu thời gian nộp bài
         submitted: true,
       });
     } catch (error) {

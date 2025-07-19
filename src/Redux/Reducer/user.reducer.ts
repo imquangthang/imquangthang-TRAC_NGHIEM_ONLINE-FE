@@ -11,8 +11,13 @@ const getUserFromStorage = (): userState => {
           isAuthenticated: false,
           Token: "",
           account: {
+            Id: "",
             Username: "",
             Role: "",
+            FirstName: "",
+            LastName: "",
+            Gender: "",
+            Birthdate: "",
           },
         };
   } catch (error) {
@@ -21,8 +26,13 @@ const getUserFromStorage = (): userState => {
       isAuthenticated: false,
       Token: "",
       account: {
+        Id: "",
         Username: "",
         Role: "",
+        FirstName: "",
+        LastName: "",
+        Gender: "",
+        Birthdate: "",
       },
     };
   }
