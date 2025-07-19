@@ -162,6 +162,10 @@ const Header = ({ onSearch }: { onSearch?: (value: string) => void }) => {
       </div>
       <ModalUpdateUser
         idUser={user?.account?.Id}
+        firstName={user?.account?.FirstName}
+        lastName={user?.account?.LastName}
+        birthDate={user?.account?.Birthdate}
+        gender={parseInt(user?.account?.Gender) || 0}
         open={open}
         onClose={() => setOpen(false)}
         title="Update User Form"

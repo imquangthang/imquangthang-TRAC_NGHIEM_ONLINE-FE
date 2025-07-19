@@ -29,6 +29,10 @@ const LogIn = () => {
       let Token = response.data?.Token;
       let Id = response.data?.Id;
       let Username = response.data?.Username;
+      let FirstName = response.data?.FirstName || "";
+      let LastName = response.data?.LastName || "";
+      let Gender = response.data?.Gender || "";
+      let Birthdate = response.data?.Birthdate || "";
 
       let data = {
         isAuthenticated: true,
@@ -37,6 +41,10 @@ const LogIn = () => {
           Id,
           Username,
           Role,
+          FirstName,
+          LastName,
+          Gender,
+          Birthdate,
         },
       };
 

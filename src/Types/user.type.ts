@@ -1,12 +1,16 @@
-export interface userState {
+export type userState = {
   isAuthenticated: boolean;
   Token: string;
   account: {
     Id: string;
     Username: string;
     Role: string;
+    FirstName?: string;
+    LastName?: string;
+    Gender?: string;
+    Birthdate?: string;
   };
-}
+};
 
 export type userGetByAdmin = {
   id: string;
