@@ -69,24 +69,30 @@ const LiveRankings = () => {
         return a.startTime - b.startTime;
       });
 
-      // Calculate elapsed times cho từng học sinh
-      const initialElapsedTimes = studentList.reduce((acc, student) => {
-        if (student.submitted && student.endTime) {
-          // Nếu đã nộp bài, tính thời gian từ startTime đến endTime
-          acc[student.userId] = formatElapsedTime(
-            student.startTime,
-            student.endTime
-          );
-        } else {
-          // Nếu chưa nộp bài, tính thời gian từ startTime đến hiện tại
-          acc[student.userId] = formatElapsedTime(student.startTime);
-        }
-        return acc;
-      }, {} as { [userId: string]: string });
+      // Update elapsed times, preserving times for submitted students
+      setElapsedTimes((prevElapsedTimes) => {
+        const updatedTimes = { ...prevElapsedTimes };
+        studentList.forEach((student) => {
+          // Only calculate time if not already set or if student hasn't submitted
+          if (!student.submitted) {
+            updatedTimes[student.userId] = formatElapsedTime(student.startTime);
+          } else if (
+            student.submitted &&
+            student.endTime &&
+            !updatedTimes[student.userId]
+          ) {
+            // Only set time for submitted students if not already set
+            updatedTimes[student.userId] = formatElapsedTime(
+              student.startTime,
+              student.endTime
+            );
+          }
+        });
+        return updatedTimes;
+      });
 
       setStudents(studentList);
       setActiveStudents(studentList.filter((s) => !s.submitted).length);
-      setElapsedTimes(initialElapsedTimes);
     });
 
     return () => unsubscribeStudents();
