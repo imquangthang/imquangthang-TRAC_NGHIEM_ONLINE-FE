@@ -9,7 +9,7 @@ const dummyExam = {
   title: "15 minutes",
   id: "drill",
   description: "Geography",
-  timeLimit: 60 * 60, // 60 minutes in seconds
+  timeLimit: 1 * 60, // minutes in seconds
   questions: [
     {
       question: "Việt Nam nằm trong khu vực nào sau đây của châu Á?",
