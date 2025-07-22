@@ -186,6 +186,11 @@
   animation: typing 2.5s steps(15, end) forwards, blink 0.8s step-end infinite;
 }
 
+@media (max-width: 40rem) {
+  .typewriter {
+    font-size: 2rem;
+  }
+}
 /* Gõ chữ */
 @keyframes typing {
   from {

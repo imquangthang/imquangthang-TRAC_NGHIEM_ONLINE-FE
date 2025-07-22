@@ -19,7 +19,7 @@ const Admin = () => {
         </ul>
 
         <div className="flex justify-center items-center h-screen">
-          <h1 className="typewriter">WELCOME TO ADMIN!</h1>
+          <h1 className="typewriter text-xl  p-3">WELCOME TO ADMIN!</h1>
         </div>
       </div>
     </div>

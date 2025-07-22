@@ -41,8 +41,8 @@ const Header = ({ onSearch }: { onSearch?: (value: string) => void }) => {
 
   return (
     <header className="shadow-sm border rounded bg-white border-gray-200 dark:border-gray-700 dark:bg-gray-900">
-      <div className="px-6 py-1">
-        <div className="flex items-center justify-between space-x-4">
+      <div className="px-6 py-1 z-10">
+        <div className="flex items-center justify-between space-x-4 max-w-full md:max-w-5xl mx-auto">
           <div className="relative w-7/12">
             <FontAwesomeIcon
               icon={faSearch}
@@ -58,11 +58,10 @@ const Header = ({ onSearch }: { onSearch?: (value: string) => void }) => {
               onKeyDown={handlePressEnter}
             />
           </div>
-
-          <div className="relative">
+          <div className="relative flex items-center gap-3">
             <button
               onClick={() => changeTheme()}
-              className="w-10 h-10 mr-3 rounded-full border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               <FontAwesomeIcon
                 icon={darkMode ? faSun : faMoon}
@@ -76,7 +75,6 @@ const Header = ({ onSearch }: { onSearch?: (value: string) => void }) => {
               />
             </button>
           </div>
-
           <div className="relative">
             <button
               id="dropdownInformationButton"
