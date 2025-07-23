@@ -1,16 +1,6 @@
-// import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import Header from "../../Header/header";
-// import { useNavigate } from "react-router-dom";
-
-// interface StudentResult {
-//   id: number;
-//   name: string;
-//   score: number;
-//   answers: string;
-//   duration: number;
-// }
 
 interface ExamHistoryStudent {
   id: number;
@@ -21,9 +11,6 @@ interface ExamHistoryStudent {
 }
 
 const ExamHistory = () => {
-  // const [expandedExam, setExpandedExam] = useState<number | null>(null);
-  // const navigate = useNavigate();
-
   const exams: ExamHistoryStudent[] = [
     {
       id: 1,

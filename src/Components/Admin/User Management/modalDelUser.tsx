@@ -3,6 +3,7 @@ import { faClose } from "@fortawesome/free-solid-svg-icons";
 import type { ModalUpdateUserProps } from "../../../Interface/modal.interface";
 import { toast } from "react-toastify";
 import { deleteUser } from "../../../Services/userServices";
+import { createPortal } from "react-dom";
 
 const ModalDelUser: React.FC<ModalUpdateUserProps> = ({
   idUser,
@@ -24,7 +25,7 @@ const ModalDelUser: React.FC<ModalUpdateUserProps> = ({
 
   if (!open) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 dark:bg-opacity-75 transition-opacity duration-300">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4 p-6 sm:max-w-lg transform transition-all duration-300">
         {/* Header */}
@@ -61,7 +62,8 @@ const ModalDelUser: React.FC<ModalUpdateUserProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
