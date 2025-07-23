@@ -43,7 +43,7 @@ const TeacherNav = ({ isMenuOpen, toggleMenu }: any) => {
       >
         {/* Logo and Branding (Hidden on Mobile when Menu is Closed) */}
         <li className="mb-10 hidden md:flex md:flex-col items-center">
-          <Link to="/student" className="flex items-center">
+          <Link to="/teacher" className="flex items-center">
             <img src={Logo} alt="Logo" className="h-20 w-auto mx-auto" />
             <div className="text-center">
               <p className="text-sm text-gray-500 dark:text-gray-300 font-overlock border-b-2 border-gray-300 dark:border-gray-600">

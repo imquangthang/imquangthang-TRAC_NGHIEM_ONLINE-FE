@@ -22,22 +22,23 @@ function App() {
     dispatch(setLoading());
     if (!token) {
       navigate("/login");
-    } else {
-      switch (user?.account?.Role) {
-        case "0":
-          navigate("/admin");
-          break;
-        case "1":
-          navigate("/teacher");
-          break;
-        case "2":
-          navigate("/student");
-          break;
-        default:
-          navigate("/");
-          break;
-      }
     }
+    // else {
+    //   switch (user?.account?.Role) {
+    //     case "0":
+    //       navigate("/admin");
+    //       break;
+    //     case "1":
+    //       navigate("/teacher");
+    //       break;
+    //     case "2":
+    //       navigate("/student");
+    //       break;
+    //     default:
+    //       navigate("/");
+    //       break;
+    //   }
+    // }
     dispatch(setUnLoading());
   }, [token]);
 

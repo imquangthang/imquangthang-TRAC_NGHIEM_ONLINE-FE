@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { updateUser } from "../../../Services/userServices";
 import { updateUserRedux } from "../../../Redux/Reducer/user.reducer";
 import { useDispatch } from "react-redux";
+import { createPortal } from "react-dom";
 
 const ModalUpdateUser: React.FC<ModalUpdateUserProps> = ({
   idUser,
@@ -96,8 +97,8 @@ const ModalUpdateUser: React.FC<ModalUpdateUserProps> = ({
 
   if (!open) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 dark:bg-opacity-75 transition-opacity duration-300">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 dark:bg-opacity-75 transition-opacity duration-300">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4 p-6 sm:max-w-lg transform transition-all duration-300">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-700">
@@ -222,7 +223,8 @@ const ModalUpdateUser: React.FC<ModalUpdateUserProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

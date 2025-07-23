@@ -146,14 +146,8 @@ const EnterEmailPage = ({ setStep }: any) => {
 };
 
 const EnterCodePage = ({ setStep, code, setCode }: any) => {
-  // const [code, setCode] = useState("");
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // if (!code || code.length !== 6) {
-    //   toast("Please enter a valid 6-character code.");
-    //   return;
-    // }
 
     console.log("Code entered:", code);
 

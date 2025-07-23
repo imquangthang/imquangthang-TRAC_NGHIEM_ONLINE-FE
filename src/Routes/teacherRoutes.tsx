@@ -10,13 +10,13 @@ import ExamHistory from "../Components/Teacher/Exam History/examHistory";
 import DetailExamHistory from "../Components/Teacher/Exam History/detailExamHistory";
 import DetailExamResult from "../Components/Teacher/Exam History/detailExamResult";
 
-const teacherRoutes = (Layouts: () => React.JSX.Element, user: userState) => {
+const teacherRoutes = (Layouts: () => React.JSX.Element, _user: userState) => {
   return (
     <Route path="/teacher" element={<Layouts />}>
       <Route index element={<Teacher />} />
       <Route path="exams" element={<Exams />} />
+      <Route path="exams/:id" element={<ExamDetail />} />
       <Route path="questions" element={<Questions />} />
-      <Route path="examDetail" element={<ExamDetail />} />
       <Route path="live-rankings" element={<OngoingExams />} />
       <Route path="live-rankings/:id" element={<LiveRankings />} />
       <Route path="exam-history" element={<ExamHistory />} />

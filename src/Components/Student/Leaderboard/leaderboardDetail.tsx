@@ -441,7 +441,7 @@ const LeaderboardDetail = () => {
         <div className="flex gap-5 p-6 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
           <div className="flex-1">
             <p className="mb-5 text-sm text-gray-400">
-              /leaderboard/{DetailExam?.title}
+              /Leaderboard/{DetailExam?.title}
             </p>
             <header className="">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center">

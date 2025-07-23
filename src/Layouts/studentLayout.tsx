@@ -14,7 +14,7 @@ const StudentLayout = () => {
   return (
     <div className="flex bg-white dark:bg-black min-h-screen">
       {/* Sidebar */}
-      <div className="fixed md:static md:w-80 lg:w-80 z-20">
+      <div className="relative md:static md:w-80 lg:w-80 z-20">
         <StudentNav isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
       </div>
 
