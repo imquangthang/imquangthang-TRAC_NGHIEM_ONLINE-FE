@@ -5,7 +5,10 @@ import Logo from "../../Assets/Logo.png";
 import { toast } from "react-toastify";
 import { login } from "../../Services/authService.ts";
 import { useDispatch } from "react-redux";
-import { setLoading, setUnLoading } from "../../Redux/Reducer/loading.ts";
+import {
+  setLoading,
+  setUnLoading,
+} from "../../Redux/Reducer/loading.reducer.ts";
 import { loginUserRedux } from "../../Redux/Reducer/user.reducer.ts";
 
 const LogIn = () => {

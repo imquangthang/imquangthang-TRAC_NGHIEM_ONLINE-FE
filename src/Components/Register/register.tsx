@@ -3,7 +3,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import Logo from "../../assets/Logo.png";
 import { toast } from "react-toastify";
-import { setLoading, setUnLoading } from "../../Redux/Reducer/loading.ts";
+import {
+  setLoading,
+  setUnLoading,
+} from "../../Redux/Reducer/loading.reducer.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { register } from "../../Services/authService.ts";
 
