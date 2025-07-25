@@ -1,8 +1,5 @@
 import { createAction, createReducer } from "@reduxjs/toolkit";
-
-interface LoadingState {
-  isLoading: boolean;
-}
+import type { LoadingState } from "../../Interface/loading.interface";
 
 const initialState: LoadingState = {
   isLoading: false,
