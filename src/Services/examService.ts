@@ -28,4 +28,18 @@ const addNewExam = (data: ExamRequest) => {
   });
 };
 
-export { addNewExam };
+const fetchAllExams = (
+  Title: string,
+  CurrentPage: number,
+  PageSize: number
+) => {
+  return instance.get("/api/exam", {
+    params: {
+      Keyword: Title,
+      CurrentPage: CurrentPage,
+      PageSize: PageSize,
+    },
+  });
+};
+
+export { addNewExam, fetchAllExams };
