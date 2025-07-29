@@ -1,5 +1,5 @@
 export interface ModalUpdateUserProps {
-  idUser: number;
+  idUser?: number;
   firstName?: string;
   lastName?: string;
   birthDate?: string;

@@ -1,8 +1,12 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faSearch } from "@fortawesome/free-solid-svg-icons";
 import Header from "../Header/header";
+import { useState } from "react";
+import ModalAddNewExam from "./Exams/modalAddNewExam";
 
 const Teacher: React.FC = () => {
+  const [openModalAddNewExam, setOpenModalAddNewExam] = useState(false);
+
   const listExams = [
     {
       title: "Bài Kiểm tra cuối kì 2 - Lập Trình Hướng Đối Tượng",
@@ -35,6 +39,10 @@ const Teacher: React.FC = () => {
       created_by: "imThang",
     },
   ];
+
+  const openModal = () => {
+    setOpenModalAddNewExam(true);
+  };
   return (
     <>
       <Header />
@@ -137,7 +145,12 @@ const Teacher: React.FC = () => {
                 />
               </button>
 
-              <button className="flex items-center w-full gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+              <button
+                className="flex items-center w-full gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                onClick={() => {
+                  openModal();
+                }}
+              >
                 <FontAwesomeIcon
                   icon={faPlus}
                   className="icon text-gray-700 dark:text-gray-200"
@@ -162,6 +175,11 @@ const Teacher: React.FC = () => {
           </div>
         </div>
       </main>
+
+      <ModalAddNewExam
+        open={openModalAddNewExam}
+        onClose={() => setOpenModalAddNewExam(false)}
+      />
     </>
   );
 };

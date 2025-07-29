@@ -22,7 +22,6 @@ const updateUser = (userData: userUpdateByAdmin) => {
   formData.append("LastName", userData.lastName);
   formData.append("BirthDate", userData.birthDate.toString()); // ISO format
   formData.append("Gender", userData.gender.toString()); // cũng cần string
-  console.log("Updating user with data:", formData);
 
   return instance.put("/api/user", formData, {
     headers: {
