@@ -42,4 +42,46 @@ const fetchAllExams = (
   });
 };
 
-export { addNewExam, fetchAllExams };
+const getExamDetail = (id: number) => {
+  return instance.get(`/api/exam/${id}`);
+};
+
+const updateExamDetail = (data: ExamRequest) => {
+  const formData = new FormData();
+
+  formData.append("Id", data.Id!.toString());
+  formData.append("Title", data.Title);
+  formData.append("Description", data.Description);
+  formData.append("DurationMinutes", data.DurationMinutes.toString());
+
+  data.Questions?.forEach((q, i) => {
+    formData.append(`Questions[${i}].Content`, q.Content);
+    formData.append(`Questions[${i}].Explain`, q.Explain);
+
+    q.Options.forEach((opt, j) => {
+      formData.append(`Questions[${i}].Options[${j}].Content`, opt.Content);
+      formData.append(
+        `Questions[${i}].Options[${j}].IsCorrect`,
+        opt.IsCorrect.toString()
+      );
+    });
+  });
+
+  return instance.put("/api/exam", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+const deleteExam = (id: number) => {
+  return instance.delete(`/api/exam/${id}`);
+};
+
+export {
+  addNewExam,
+  fetchAllExams,
+  getExamDetail,
+  updateExamDetail,
+  deleteExam,
+};
