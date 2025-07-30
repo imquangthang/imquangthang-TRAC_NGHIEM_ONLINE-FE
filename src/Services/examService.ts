@@ -74,4 +74,14 @@ const updateExamDetail = (data: ExamRequest) => {
   });
 };
 
-export { addNewExam, fetchAllExams, getExamDetail, updateExamDetail };
+const deleteExam = (id: number) => {
+  return instance.delete(`/api/exam/${id}`);
+};
+
+export {
+  addNewExam,
+  fetchAllExams,
+  getExamDetail,
+  updateExamDetail,
+  deleteExam,
+};
