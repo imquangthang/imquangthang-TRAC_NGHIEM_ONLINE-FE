@@ -18,11 +18,11 @@ const handleAxiosError = (error: any) => {
 
   switch (status) {
     case 401:
-      toast.error("🔒 Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+      toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
       window.location.href = "/login";
       break;
     case 403:
-      toast.error("🚫 Bạn không có quyền truy cập tài nguyên này.");
+      toast.error("Bạn không có quyền truy cập tài nguyên này.");
       window.location.href = "/login";
       break;
     default:
@@ -31,9 +31,9 @@ const handleAxiosError = (error: any) => {
           "🌐 Không thể kết nối tới máy chủ. Kiểm tra mạng hoặc CORS."
         );
       } else if (error.code === "ECONNABORTED") {
-        toast.error("⏰ Hết thời gian kết nối tới máy chủ.");
+        toast.error("Hết thời gian kết nối tới máy chủ.");
       } else {
-        toast.error(`❌ Lỗi: ${message || "Đã xảy ra lỗi không xác định."}`);
+        toast.error(`Lỗi: ${message || "Đã xảy ra lỗi không xác định."}`);
       }
       break;
   }
@@ -58,7 +58,7 @@ const applyInterceptors = (axiosInstance: typeof instance) => {
     try {
       return response.data;
     } catch (e) {
-      console.error("❌ Lỗi khi đọc response:", e, response);
+      console.error("Lỗi khi đọc response:", e, response);
       throw e;
     }
   }, handleAxiosError);

@@ -5,8 +5,10 @@ import { useEffect, useState } from "react";
 import ReactPaginate from "react-paginate";
 import { fetchAllExams } from "../../../Services/examService";
 import { Skeleton } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const Exams = () => {
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [currentLimit, _setCurrentLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
@@ -210,6 +212,9 @@ const Exams = () => {
                                     <FontAwesomeIcon
                                       icon={faPen}
                                       className="text-yellow-500 dark:text-yellow-400 cursor-pointer mx-3"
+                                      onClick={() =>
+                                        navigate(`/teacher/exams/${exam.id}`)
+                                      }
                                     />
                                     <FontAwesomeIcon
                                       icon={faTrash}

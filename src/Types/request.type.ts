@@ -7,6 +7,7 @@ export type RegisterRequest = {
 };
 
 export type ExamRequest = {
+  Id?: number;
   Title: string;
   Description: string;
   DurationMinutes: number;
