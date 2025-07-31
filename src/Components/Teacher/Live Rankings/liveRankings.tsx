@@ -1,39 +1,64 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ref, onValue } from "firebase/database";
 import { db } from "../../../Setup/firebase";
 import Header from "../../Header/header";
-
-interface Student {
-  userId: string;
-  name: string;
-  answered: number;
-  total: number;
-  startTime: number;
-  endTime?: number; // Thêm endTime
-  submitted: boolean;
-}
-
-const examId = "drill";
-const totalQuestions = 3;
+import { useParams } from "react-router-dom";
+import type { Student } from "../../../Interface/student.interface";
+import type { ExamRequest } from "../../../Types/request.type";
+import { getExamDetail } from "../../../Services/examService";
 
 const LiveRankings = () => {
+  const { examId } = useParams<{ examId: string }>();
+  const [examDetail, setExamDetail] = useState<ExamRequest | null>(null);
+  const [totalQuestions, setTotalQuestions] = useState(0);
   const [students, setStudents] = useState<Student[]>([]);
   const [activeStudents, setActiveStudents] = useState(0);
   const [elapsedTimes, setElapsedTimes] = useState<{
     [userId: string]: string;
   }>({});
 
-  // Format elapsed time
-  const formatElapsedTime = (startTime: number, endTime?: number) => {
-    const endTimeToUse = endTime || Date.now();
-    const elapsedSeconds = Math.floor((endTimeToUse - startTime) / 1000);
-    const minutes = Math.floor(elapsedSeconds / 60);
-    const seconds = elapsedSeconds % 60;
-    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-  };
+  const loadExamData = useCallback(async () => {
+    if (!examId) {
+      return;
+    }
+    try {
+      const response: any = await getExamDetail(parseInt(examId));
+      console.log(response);
+
+      if (response) {
+        const examData: ExamRequest = {
+          Id: response.id,
+          Title: response.title,
+          Description: response.description,
+          DurationMinutes: response.durationMinutes,
+          Questions: (response.questions || []).map((q: any) => ({
+            id: q.id,
+            content: q.content,
+            explain: q.explain,
+            options: (q.options || []).map((opt: any) => ({
+              id: opt.id,
+              content: opt.content,
+              isCorrect: opt.isCorrect,
+            })),
+          })),
+        };
+        setExamDetail(examData);
+        setTotalQuestions(examData.Questions.length);
+      }
+    } catch (error) {
+      console.error("Error loading exam:", error);
+    }
+  }, [examId]);
+
+  // Load exam data
+  useEffect(() => {
+    loadExamData();
+  }, [loadExamData]);
 
   // Load student data from Realtime Database
   useEffect(() => {
+    if (!examId || !examDetail || totalQuestions === 0) return;
+
     const studentsRef = ref(db, `exams/${examId}/students`);
     const unsubscribeStudents = onValue(studentsRef, (snapshot) => {
       const data = snapshot.val();
@@ -55,7 +80,7 @@ const LiveRankings = () => {
             answered,
             total: totalQuestions,
             startTime: studentData.startTime || Date.now(),
-            endTime: studentData.endTime, // Lấy endTime từ database
+            endTime: studentData.endTime,
             submitted: studentData.submitted || false,
           };
         }
@@ -73,7 +98,6 @@ const LiveRankings = () => {
       setElapsedTimes((prevElapsedTimes) => {
         const updatedTimes = { ...prevElapsedTimes };
         studentList.forEach((student) => {
-          // Only calculate time if not already set or if student hasn't submitted
           if (!student.submitted) {
             updatedTimes[student.userId] = formatElapsedTime(student.startTime);
           } else if (
@@ -81,7 +105,6 @@ const LiveRankings = () => {
             student.endTime &&
             !updatedTimes[student.userId]
           ) {
-            // Only set time for submitted students if not already set
             updatedTimes[student.userId] = formatElapsedTime(
               student.startTime,
               student.endTime
@@ -96,19 +119,26 @@ const LiveRankings = () => {
     });
 
     return () => unsubscribeStudents();
-  }, []);
+  }, [examId, examDetail, totalQuestions]);
 
-  // Update elapsed times every second - CHỈ cho học sinh chưa nộp bài
+  // Format elapsed time
+  const formatElapsedTime = (startTime: number, endTime?: number) => {
+    const endTimeToUse = endTime || Date.now();
+    const elapsedSeconds = Math.floor((endTimeToUse - startTime) / 1000);
+    const minutes = Math.floor(elapsedSeconds / 60);
+    const seconds = elapsedSeconds % 60;
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  };
+
+  // Update elapsed times every second for non-submitted students
   useEffect(() => {
     const timer = setInterval(() => {
       setElapsedTimes((prev) => {
         const updatedTimes = { ...prev };
         students.forEach((student) => {
           if (!student.submitted) {
-            // CHỈ cập nhật thời gian cho học sinh chưa nộp bài
             updatedTimes[student.userId] = formatElapsedTime(student.startTime);
           }
-          // Nếu đã nộp bài, giữ nguyên thời gian đã tính (endTime - startTime)
         });
         return updatedTimes;
       });
@@ -119,15 +149,12 @@ const LiveRankings = () => {
 
   return (
     <div className="flex flex-col w-full min-h-screen">
-      {/* Top Header */}
       <Header />
-      {/* Main Content */}
       <main className="p-6 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
         <p className="mb-5 text-sm text-gray-400">
-          /Live Rankings/Bài Kiểm tra cuối kì 2 - Lập Trình Hướng Đối Tượng
+          /Live Rankings/{examDetail?.Title || "Bài Kiểm tra"}
         </p>
         <div className="flex flex-col w-full min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200 p-6">
-          {/* Header */}
           <header className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 mb-6">
             <h1 className="text-2xl font-bold">Live Exam Rankings</h1>
             <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">
@@ -135,7 +162,6 @@ const LiveRankings = () => {
             </div>
           </header>
 
-          {/* Ranking Table */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -152,10 +178,10 @@ const LiveRankings = () => {
               <tbody>
                 {students.map((student, index) => {
                   const unanswered = student.total - student.answered;
-                  const progress = (
-                    (student.answered / student.total) *
-                    100
-                  ).toFixed(1);
+                  const progress =
+                    student.total > 0
+                      ? ((student.answered / student.total) * 100).toFixed(1)
+                      : 0;
                   return (
                     <tr
                       key={student.userId}

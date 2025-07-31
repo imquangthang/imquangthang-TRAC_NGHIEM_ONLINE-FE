@@ -1,12 +1,9 @@
-import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Header from "../../Header/header";
 import { useEffect, useState } from "react";
 import ReactPaginate from "react-paginate";
-import { deleteExam, fetchAllExams } from "../../../Services/examService";
+import { fetchAllExams } from "../../../Services/examService";
 import { Skeleton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 
 const StudentExams = () => {
   const navigate = useNavigate();
@@ -39,14 +36,6 @@ const StudentExams = () => {
   const handleSearch = (value: string) => {
     setSearchKeyword(value);
     console.log("Giá trị tìm kiếm từ Header:", value);
-  };
-
-  const handleDeleteExam = async (id: number) => {
-    const response: any = await deleteExam(id);
-    if (response && response.code === 200) {
-      toast.success(`Exam Deleted successfully!`);
-      fetchExams();
-    } else toast.error("Failed to delete exam. Please try again.");
   };
 
   useEffect(() => {
