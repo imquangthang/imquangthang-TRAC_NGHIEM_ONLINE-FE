@@ -1,94 +1,115 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFlag } from "@fortawesome/free-solid-svg-icons";
 import { ref, update, onValue, push, serverTimestamp } from "firebase/database";
 import { db } from "../../../Setup/firebase";
 import Header from "../../Header/header";
-
-const dummyExam = {
-  title: "15 minutes",
-  id: "drill",
-  description: "Geography",
-  timeLimit: 1 * 60, // minutes in seconds
-  questions: [
-    {
-      question: "Việt Nam nằm trong khu vực nào sau đây của châu Á?",
-      answers: {
-        A: "Tây Nam Á",
-        B: "Nam Á",
-        C: "Đông Nam Á",
-        D: "Đông Á",
-      },
-      correctAnswer: "C",
-      explanation: "Đáp án đúng: C. Đông Nam Á",
-    },
-    {
-      question:
-        "Trên bản đồ có tỷ lệ 1:100.000, đoạn đường dài 5cm trên bản đồ tương ứng với bao nhiêu km ngoài thực tế?",
-      answers: {
-        A: "0,5 km",
-        B: "5 km",
-        C: "50 km",
-        D: "500 km",
-      },
-      correctAnswer: "C",
-      explanation:
-        "5 cm × 100.000 = 5.000.000 cm = 50.000 m = 50 km → C. 50 km",
-    },
-    {
-      question: "Khu vực nào sau đây có khí hậu nhiệt đới gió mùa điển hình?",
-      answers: {
-        A: "Tây Âu",
-        B: "Bắc Phi",
-        C: "Đông Nam Á",
-        D: "Đông Bắc Hoa Kỳ",
-      },
-      correctAnswer: "C",
-      explanation: "Đáp án đúng: C. Đông Nam Á",
-    },
-  ],
-};
+import { useParams } from "react-router-dom";
+import type { ExamRequest } from "../../../Types/request.type";
+import { getExamDetail, submitExam } from "../../../Services/examService";
+import type { Options, Question } from "../../../Types/question.type";
+import { faFlag } from "@fortawesome/free-solid-svg-icons";
 
 const ExamDetail = ({ userId }: { userId: string }) => {
-  const [exam] = useState(dummyExam);
+  const { id } = useParams<{ id: string }>();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [exam, setExam] = useState<ExamRequest>();
   const [selectedAnswers, setSelectedAnswers] = useState<{
-    [index: number]: string;
+    [questionId: number]: number;
   }>({});
   const [flaggedQuestions, setFlaggedQuestions] = useState<{
-    [index: number]: boolean;
+    [questionId: number]: boolean;
   }>({});
   const [submitted, setSubmitted] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(exam.timeLimit);
+  const [timeRemaining, setTimeRemaining] = useState<number>();
   const [startTime, setStartTime] = useState<number | null>(null);
   const selectedAnswersRef = useRef(selectedAnswers);
   const [openModalSubmit, setOpenModalSubmit] = useState(false);
+
+  const loadExamData = useCallback(async () => {
+    if (!id) {
+      setError("Exam ID is missing");
+      setIsLoading(false);
+      return;
+    }
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response: any = await getExamDetail(parseInt(id));
+      console.log(response);
+
+      if (response) {
+        const examData: ExamRequest = {
+          Id: response.id,
+          Title: response.title,
+          Description: response.description,
+          DurationMinutes: response.durationMinutes,
+          Questions: (response.questions || []).map((q: any) => ({
+            Id: q.id,
+            Content: q.content,
+            Explain: q.explain,
+            Options: (q.options || []).map((opt: any) => ({
+              Id: opt.id,
+              Content: opt.content,
+              IsCorrect: opt.isCorrect,
+            })),
+          })),
+        };
+        setExam(examData);
+        setTimeRemaining(examData.DurationMinutes * 60);
+      } else {
+        setError("No exam data found");
+      }
+    } catch (error) {
+      console.error("Error loading exam:", error);
+      setError(
+        `Failed to load exam: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadExamData();
+  }, [loadExamData]);
 
   useEffect(() => {
     selectedAnswersRef.current = selectedAnswers;
   }, [selectedAnswers]);
 
-  // Load exam state from Realtime Database
   useEffect(() => {
-    const examRef = ref(db, `exams/${exam.id}/students/${userId}`);
-    onValue(examRef, (snapshot) => {
+    if (!exam?.Id || submitted) return; // Stop listener if exam not loaded or submitted
+
+    const examRef = ref(db, `exams/${exam.Id}/students/${userId}`);
+    const unsubscribe = onValue(examRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         setSelectedAnswers(data.selectedAnswers || {});
         setFlaggedQuestions(data.flaggedQuestions || {});
-        setSubmitted(data.submitted || false);
+        if (data.submitted) {
+          setSubmitted(true);
+          setTimeRemaining(0);
+          setStartTime(data.startTime || null);
+          return;
+        }
         if (data.startTime) {
           const start = data.startTime;
           setStartTime(start);
           const elapsed = Math.floor((Date.now() - start) / 1000);
-          const remaining = exam.timeLimit - elapsed;
-          setTimeRemaining(remaining > 0 ? remaining : 0);
-          if (remaining <= 0 && !data.submitted) {
-            handleSubmit(); // Auto-submit if time runs out
+          const remaining = exam.DurationMinutes * 60 - elapsed;
+          if (remaining <= 0) {
+            setTimeRemaining(0);
+            handleSubmit();
+          } else {
+            setTimeRemaining(remaining);
           }
         } else {
-          // New exam attempt
           const newStartTime = Date.now();
           setStartTime(newStartTime);
+          setTimeRemaining(exam.DurationMinutes * 60);
           update(examRef, {
             startTime: newStartTime,
             selectedAnswers: {},
@@ -97,9 +118,9 @@ const ExamDetail = ({ userId }: { userId: string }) => {
           });
         }
       } else {
-        // Initialize new exam attempt
         const newStartTime = Date.now();
         setStartTime(newStartTime);
+        setTimeRemaining(exam.DurationMinutes * 60);
         update(examRef, {
           startTime: newStartTime,
           selectedAnswers: {},
@@ -108,35 +129,40 @@ const ExamDetail = ({ userId }: { userId: string }) => {
         });
       }
     });
-  }, [exam.id, userId, exam.timeLimit]);
 
-  // Timer effect
+    return () => unsubscribe();
+  }, [exam?.Id, exam?.DurationMinutes, userId, submitted]);
+
   useEffect(() => {
-    if (submitted || !startTime) return;
+    if (submitted || !startTime || !exam?.DurationMinutes) return;
 
     const timer = setInterval(() => {
       const elapsed = Math.floor((Date.now() - startTime) / 1000);
-      const remaining = Math.max(0, exam.timeLimit - elapsed);
+      const remaining = Math.max(0, exam.DurationMinutes * 60 - elapsed);
       setTimeRemaining(remaining);
 
       if (remaining <= 0) {
         clearInterval(timer);
-        handleSubmit(); // sẽ dùng ref để tránh mất dữ liệu
+        handleSubmit();
       }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [submitted, startTime, exam.timeLimit]);
+  }, [submitted, startTime, exam?.DurationMinutes]);
 
-  // Save answers and flags to Realtime Database
   const saveExamState = async (updates: object) => {
-    const examRef = ref(db, `exams/${exam.id}/students/${userId}`);
-    await update(examRef, updates);
+    const examRef = ref(db, `exams/${exam?.Id}/students/${userId}`);
+    try {
+      await update(examRef, updates);
+    } catch (error) {
+      console.error("Error saving exam state:", error);
+      throw error;
+    }
   };
 
-  const handleAnswerSelect = (questionIndex: number, answerKey: string) => {
+  const handleAnswerSelect = (questionId: number, answerId: number) => {
     setSelectedAnswers((prev) => {
-      const newAnswers = { ...prev, [questionIndex]: answerKey };
+      const newAnswers = { ...prev, [questionId]: answerId };
       saveExamState({
         selectedAnswers: newAnswers,
         flaggedQuestions,
@@ -147,9 +173,9 @@ const ExamDetail = ({ userId }: { userId: string }) => {
     });
   };
 
-  const handleFlagToggle = (questionIndex: number) => {
+  const handleFlagToggle = (questionId: number) => {
     setFlaggedQuestions((prev) => {
-      const newFlags = { ...prev, [questionIndex]: !prev[questionIndex] };
+      const newFlags = { ...prev, [questionId]: !prev[questionId] };
       saveExamState({
         selectedAnswers,
         flaggedQuestions: newFlags,
@@ -166,30 +192,49 @@ const ExamDetail = ({ userId }: { userId: string }) => {
     setSubmitted(true);
 
     const answers = selectedAnswersRef.current;
-    const currentTime = Date.now(); // Lấy thời gian hiện tại khi nộp bài
+    const currentTime = Date.now();
 
-    const score = exam.questions.reduce((total, q, i) => {
-      return total + (answers[i] === q.correctAnswer ? 1 : 0);
+    // Prepare API payload
+    const apiAnswers = Object.entries(answers).map(
+      ([questionId, answerId]) => ({
+        questionId: parseInt(questionId),
+        answerId: parseInt(answerId.toString()),
+      })
+    );
+
+    const score = exam?.Questions.reduce((total, q) => {
+      const correctAnswerId = q.Options.find((opt) => opt.IsCorrect)?.Id;
+      return total + (answers[q.Id!] === correctAnswerId ? 1 : 0);
     }, 0);
 
     try {
-      const leaderboardRef = ref(db, `exams/${exam.id}/leaderboard/${userId}`);
+      // Call the API using examService
+      await submitExam(exam?.Id!, apiAnswers);
+
+      // Update Firebase leaderboard
+      const leaderboardRef = ref(db, `exams/${exam?.Id}/leaderboard/${userId}`);
       await push(leaderboardRef, {
         score,
         selectedAnswers: answers,
         submittedAt: serverTimestamp(),
       });
 
-      // LƯU ENDTIME KHI NỘP BÀI
+      // Update Firebase exam state
       await saveExamState({
         selectedAnswers: answers,
         flaggedQuestions,
         startTime,
-        endTime: currentTime, // Lưu thời gian nộp bài
+        endTime: currentTime,
         submitted: true,
       });
     } catch (error) {
       console.error("Error submitting exam:", error);
+      setSubmitted(false); // Revert state on error to allow retry
+      setError(
+        `Failed to submit exam: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     }
   };
 
@@ -201,191 +246,226 @@ const ExamDetail = ({ userId }: { userId: string }) => {
 
   return (
     <div className="flex flex-col w-full min-h-screen">
-      {/* Top Header */}
       <Header />
-      {/* Main Content */}
-      <main className="p-6 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
-        <p className="mb-5 text-sm text-gray-400">/exams/{exam.title}</p>
-        <div className="flex flex-col md:flex-row p-4 gap-4">
-          {/* Main Content */}
-          <div className="flex-1 space-y-4">
-            {exam.questions.map((q, i) => (
-              <div
-                key={i}
-                className="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200 flex gap-4 items-start"
-              >
-                <div style={{ width: "18%" }} className="shrink-0">
-                  <h2 className="font-semibold text-base mb-3">
-                    Question {i + 1}
-                  </h2>
-                  <div className="mt-3 text-gray-500 text-xs flex flex-col gap-2">
-                    <div className="flex items-center gap-1">Answer saved</div>
-                  </div>
-                  <div className="mt-3 text-gray-500 text-xs flex flex-col gap-2">
-                    <div className="flex items-center gap-1">Score 1.00</div>
-                  </div>
-                  <div className="mt-3 text-gray-500 text-xs flex flex-col gap-2">
-                    <button
-                      onClick={() => handleFlagToggle(i)}
-                      className="flex items-center gap-1 hover:text-blue-600"
-                      disabled={submitted}
-                    >
-                      <FontAwesomeIcon
-                        icon={faFlag}
-                        className={
-                          flaggedQuestions[i] ? "text-red-500" : "text-gray-500"
-                        }
-                      />
-                      {flaggedQuestions[i] ? "Remove Flag" : "Set Flag"}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex-1">
-                  <div className="text-gray-900 mb-2 text-base">
-                    {q.question}
-                  </div>
-                  <div className="mb-3 space-y-1.5">
-                    {Object.entries(q.answers).map(([key, value]) => (
-                      <label
-                        key={key}
-                        className="flex items-center space-x-2 text-sm"
-                      >
-                        <input
-                          type="radio"
-                          name={`question-${i}`}
-                          value={key}
-                          checked={selectedAnswers[i] === key}
-                          onChange={() => handleAnswerSelect(i, key)}
-                          className="accent-blue-600"
-                          disabled={submitted}
-                        />
-                        <span>
-                          {key}. {value}
-                        </span>
-                      </label>
-                    ))}
-
-                    {submitted && (
-                      <div className="mt-2 text-sm">
-                        <p
-                          className={
-                            selectedAnswers[i] === q.correctAnswer
-                              ? "text-green-600"
-                              : "text-red-600"
-                          }
-                        >
-                          {selectedAnswers[i] === q.correctAnswer
-                            ? "✅ Chính xác!"
-                            : `❌ Sai. Đáp án đúng là: ${q.correctAnswer}`}
-                        </p>
-                        <p className="text-gray-700 italic">{q.explanation}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+      {isLoading && (
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading exam data...</p>
           </div>
-
-          {/* Sidebar Info */}
-          <div className="w-full md:w-1/3 p-4 border rounded-lg shadow-sm bg-white">
-            <p>
-              <strong>Title:</strong> {exam.title}
-            </p>
-            <p>
-              <strong>ID:</strong> {exam.id}
-            </p>
-            <p>
-              <strong>Description:</strong> {exam.description}
-            </p>
-            <p>
-              <strong>Time Limit:</strong> {exam.timeLimit / 60} minutes
-            </p>
-
-            {/* List of Questions */}
-            <div className="p-4 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
-              <p className="font-medium text-2xl text-blue-600 mb-2 border-b-2 text-center">
-                List of questions
-              </p>
-              <div className="grid grid-cols-5 gap-2">
-                {exam.questions.map((q, i) => (
-                  <button
-                    key={i}
-                    className={`border px-3 py-1 rounded text-sm flex items-center justify-center ${
-                      submitted
-                        ? selectedAnswers[i] === q.correctAnswer
-                          ? "bg-green-100 border-green-500"
-                          : selectedAnswers[i]
-                          ? "bg-red-100 border-red-500"
-                          : "bg-white border-gray-300"
-                        : selectedAnswers[i]
-                        ? "bg-gray-300 border-black"
-                        : "bg-white hover:bg-blue-100 border-gray-300"
-                    }`}
-                  >
-                    {flaggedQuestions[i] && (
-                      <FontAwesomeIcon
-                        icon={faFlag}
-                        className="text-red-500 mr-1 text-xs"
-                      />
-                    )}
-                    {i + 1}
-                  </button>
-                ))}
-              </div>
-
-              {!submitted ? (
-                <>
-                  <button
-                    className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-500"
-                    onClick={() => setOpenModalSubmit(true)}
-                  >
-                    Finish Attempt
-                  </button>
-                  <p className="mt-2 text-sm text-center text-gray-700">
-                    Thời gian còn lại: <b>{formatTime(timeRemaining)}</b>
-                  </p>
-                </>
-              ) : (
-                <p className="mt-4 font-semibold text-green-700">
-                  You have submitted the exam.
-                </p>
-              )}
-
-              {openModalSubmit && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 dark:bg-opacity-75 transition-opacity duration-300">
-                  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4 p-6 sm:max-w-lg transform transition-all duration-300">
-                    <h2 className="text-xl text-center font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                      Your test time left
-                    </h2>
-                    <p className="text-red-500 text-7xl font-bold mb-1 text-center border-b-2 border-gray-200 dark:border-gray-700 pb-3">
-                      {formatTime(timeRemaining)}
-                    </p>
-                    <p className="text-gray-700 dark:text-gray-300 mb-4 text-center">
-                      Are you sure you want to finish the test?
-                    </p>
-                    <div className="flex justify-end gap-3">
-                      <button
-                        onClick={() => setOpenModalSubmit(false)}
-                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 transition-colors duration-200"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleSubmit}
-                        className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:border-blue-500 dark:hover:bg-blue-600 transition-colors duration-200"
-                      >
-                        Submit
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
+        </div>
+      )}
+      {error && (
+        <div className="p-6 bg-red-50 border border-red-200 rounded-lg m-4">
+          <div className="flex items-center">
+            <div className="text-red-600 mr-3">⚠️</div>
+            <div>
+              <h3 className="text-red-800 font-medium">Error Loading Exam</h3>
+              <p className="text-red-700 mt-1">{error}</p>
+              <button
+                onClick={loadExamData}
+                className="mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Try Again
+              </button>
             </div>
           </div>
         </div>
-      </main>
+      )}
+      {!isLoading && !error && (
+        <main className="p-6 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
+          <p className="mb-5 text-sm text-gray-400">/exams/{exam?.Title}</p>
+          <div className="flex flex-col md:flex-row p-4 gap-4">
+            <div className="flex-1 space-y-4">
+              {exam?.Questions.map((q: Question) => (
+                <div
+                  key={q.Id}
+                  className="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200 flex gap-4 items-start"
+                >
+                  <div style={{ width: "18%" }} className="shrink-0">
+                    <h2 className="font-semibold text-base mb-3">
+                      Question{" "}
+                      {exam.Questions.findIndex(
+                        (question) => question.Id === q.Id
+                      ) + 1}
+                    </h2>
+                    <div className="mt-3 text-gray-500 text-xs flex flex-col gap-2">
+                      <div className="flex items-center gap-1">
+                        Answer saved
+                      </div>
+                      <div className="flex items-center gap-1">Score 1.00</div>
+                      <button
+                        onClick={() => handleFlagToggle(q.Id!)}
+                        className="flex items-center gap-1 hover:text-blue-600"
+                        disabled={submitted}
+                      >
+                        <FontAwesomeIcon
+                          icon={faFlag}
+                          className={
+                            flaggedQuestions[q.Id!]
+                              ? "text-red-500"
+                              : "text-gray-500"
+                          }
+                        />
+                        {flaggedQuestions[q.Id!] ? "Remove Flag" : "Set Flag"}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-gray-900 mb-2 text-base">
+                      {q.Content}
+                    </div>
+                    <div className="mb-3 space-y-1.5">
+                      {q.Options.map((option: Options) => (
+                        <label
+                          key={option.Id}
+                          className="flex items-center space-x-2 text-sm"
+                        >
+                          <input
+                            type="radio"
+                            name={`question-${q.Id}`}
+                            value={option.Id}
+                            checked={selectedAnswers[q.Id!] === option.Id}
+                            onChange={() =>
+                              handleAnswerSelect(q.Id!, option.Id!)
+                            }
+                            className="accent-blue-600"
+                            disabled={submitted}
+                          />
+                          <span>{option.Content}</span>
+                        </label>
+                      ))}
+                      {submitted && (
+                        <div className="mt-2 text-sm">
+                          <p
+                            className={
+                              selectedAnswers[q.Id!] ===
+                              q.Options.find((opt: Options) => opt.IsCorrect)
+                                ?.Id
+                                ? "text-green-600"
+                                : "text-red-600"
+                            }
+                          >
+                            {selectedAnswers[q.Id!] ===
+                            q.Options.find((opt: Options) => opt.IsCorrect)?.Id
+                              ? "✅ Chính xác!"
+                              : `❌ Sai. Đáp án đúng là: ${
+                                  q.Options.find(
+                                    (opt: Options) => opt.IsCorrect
+                                  )?.Content
+                                }`}
+                          </p>
+                          {q.Explain && (
+                            <p className="text-gray-700 italic">{q.Explain}</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {exam && (
+              <>
+                <div className="w-full md:w-1/3 p-4 border rounded-lg shadow-sm bg-white">
+                  <p>
+                    <strong>Title:</strong> {exam.Title}
+                  </p>
+                  <p>
+                    <strong>Id:</strong> {exam.Id}
+                  </p>
+                  <p>
+                    <strong>Description:</strong> {exam.Description}
+                  </p>
+                  <p>
+                    <strong>Time Limit:</strong> {exam.DurationMinutes} minutes
+                  </p>
+                  <div className="p-4 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
+                    <p className="font-medium text-2xl text-blue-600 mb-2 border-b-2 text-center">
+                      List of Questions ({exam.Questions.length})
+                    </p>
+                    <div className="grid grid-cols-5 gap-2">
+                      {exam.Questions.map((q) => (
+                        <button
+                          key={q.Id}
+                          className={`border px-3 py-1 rounded text-sm flex items-center justify-center ${
+                            submitted
+                              ? selectedAnswers[q.Id!] ===
+                                q.Options.find((opt) => opt.IsCorrect)?.Id
+                                ? "bg-green-100 border-green-500"
+                                : selectedAnswers[q.Id!]
+                                ? "bg-red-100 border-red-500"
+                                : "bg-white border-gray-300"
+                              : selectedAnswers[q.Id!]
+                              ? "bg-gray-300 border-black"
+                              : "bg-white hover:bg-blue-100 border-gray-300"
+                          }`}
+                        >
+                          {flaggedQuestions[q.Id!] && (
+                            <FontAwesomeIcon
+                              icon={faFlag}
+                              className="text-red-500 mr-1 text-xs"
+                            />
+                          )}
+                          {exam.Questions.findIndex(
+                            (question) => question.Id === q.Id
+                          ) + 1}
+                        </button>
+                      ))}
+                    </div>
+                    {!submitted ? (
+                      <>
+                        <button
+                          className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-500"
+                          onClick={() => setOpenModalSubmit(true)}
+                        >
+                          Finish Attempt
+                        </button>
+                        <p className="mt-2 text-sm text-center text-gray-700">
+                          Thời gian còn lại: <b>{formatTime(timeRemaining!)}</b>
+                        </p>
+                      </>
+                    ) : (
+                      <p className="mt-4 font-semibold text-green-700">
+                        You have submitted the exam.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+          {openModalSubmit && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 dark:bg-opacity-75 transition-opacity duration-300">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4 p-6 sm:max-w-lg transform transition-all duration-300">
+                <h2 className="text-xl text-center font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                  Your test time left
+                </h2>
+                <p className="text-red-500 text-7xl font-bold mb-1 text-center border-b-2 border-gray-200 dark:border-gray-700 pb-3">
+                  {formatTime(timeRemaining!)}
+                </p>
+                <p className="text-gray-700 dark:text-gray-300 mb-4 text-center">
+                  Are you sure you want to finish the test?
+                </p>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setOpenModalSubmit(false)}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 transition-colors duration-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSubmit}
+                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:border-blue-500 dark:hover:bg-blue-600 transition-colors duration-200"
+                  >
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </main>
+      )}
     </div>
   );
 };

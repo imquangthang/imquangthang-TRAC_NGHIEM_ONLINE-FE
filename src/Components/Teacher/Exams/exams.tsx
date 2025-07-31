@@ -8,7 +8,7 @@ import { Skeleton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-const Exams = () => {
+const TeacherExams = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [currentLimit, _setCurrentLimit] = useState(10);
@@ -277,4 +277,4 @@ const Exams = () => {
     </div>
   );
 };
-export default Exams;
+export default TeacherExams;
