@@ -1,7 +1,7 @@
 import { Route } from "react-router-dom";
 import type { userState } from "../Types/user.type";
 import Student from "../Components/Student/student";
-import Exams from "../Components/Student/Exams/exams";
+import StudentExams from "../Components/Student/Exams/exams";
 import ExamDetail from "../Components/Student/Exams/examDetail";
 import Leaderboard from "../Components/Student/Leaderboard/leaderboard";
 import LeaderboardDetail from "../Components/Student/Leaderboard/leaderboardDetail";
@@ -12,7 +12,7 @@ const studentRoutes = (Layouts: () => React.JSX.Element, user: userState) => {
   return (
     <Route path="/student" element={<Layouts />}>
       <Route index element={<Student />} />
-      <Route path="exams" element={<Exams />} />
+      <Route path="exams" element={<StudentExams />} />
       <Route
         path="exam/:id"
         element={<ExamDetail userId={user?.account?.Id} />}

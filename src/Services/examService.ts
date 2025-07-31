@@ -78,10 +78,29 @@ const deleteExam = (id: number) => {
   return instance.delete(`/api/exam/${id}`);
 };
 
+const submitExam = (
+  examId: number,
+  answers: { questionId: number; answerId: number }[]
+) => {
+  return instance.post(
+    "/api/exam/submit",
+    {
+      examId,
+      answers,
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+};
+
 export {
   addNewExam,
   fetchAllExams,
   getExamDetail,
   updateExamDetail,
   deleteExam,
+  submitExam,
 };
