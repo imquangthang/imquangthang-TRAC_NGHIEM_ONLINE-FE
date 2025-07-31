@@ -2,35 +2,52 @@ import { faCircle, faEye } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router";
 import Header from "../../Header/header";
+import { useEffect, useState } from "react";
+import { fetchAllExams } from "../../../Services/examService";
+import ReactPaginate from "react-paginate";
+import type { ExamRequest } from "../../../Types/request.type";
 
 const OngoingExams = () => {
-  const Navigate = useNavigate();
-  const listExams = [
-    {
-      title:
-        "Bài Kiểm tra cuối kì 2 - Lập Trình Hướng Đối Tượng Bài Kiểm tra cuối kì 2 - Lập Trình Hướng Đối Tượng Bài Kiểm tra cuối kì 2 - Lập Trình Hướng Đối Tượng Bài Kiểm tra cuối kì 2 - Lập Trình Hướng Đối Tượng Bài Kiểm tra cuối kì 2 - Lập Trình Hướng Đối Tượng",
-      description:
-        "Bài Kiểm tra cuối kì 2 - Lập Trình Hướng Đối Tượng Bài Kiểm tra cuối kì 2 - Lập Trình Hướng Đối Tượng Bài Kiểm tra cuối kì 2 - Lập Trình Hướng Đối Tượng Bài Kiểm tra cuối kì 2 - Lập Trình Hướng Đối Tượng Bài Kiểm tra cuối kì 2 - Lập Trình Hướng Đối Tượng",
-      durationMinutes: "50 minutes",
-      created_by: "imThang",
-    },
-    {
-      title: "Bài Kiểm tra cuối kì 2 - Lập Trình Hướng Đối Tượng",
-      description: "Bài Kiểm tra cuối kì 2 - Lập Trình Hướng Đối Tượng",
-      durationMinutes: "50 minutes",
-      created_by: "imThang",
-    },
-    {
-      title: "Bài Kiểm tra cuối kì 2 - Lập Trình Hướng Đối Tượng",
-      description: "Bài Kiểm tra cuối kì 2 - Lập Trình Hướng Đối Tượng",
-      durationMinutes: "50 minutes",
-      created_by: "imThang",
-    },
-  ];
+  const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentLimit, _setCurrentLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [listExams, setListExams] = useState<ExamRequest[]>();
+  const [isLoadingExam, setIsLoadingExam] = useState(true);
+  const [searchKeyword, setSearchKeyword] = useState("");
+
+  const handlePageClick = async (event: { selected: number }) => {
+    setCurrentPage(+event.selected + 1);
+  };
+
+  const fetchExams = async () => {
+    setIsLoadingExam(true);
+    let response: any = await fetchAllExams(
+      searchKeyword,
+      currentPage,
+      currentLimit
+    );
+
+    if (response) {
+      setListExams(response.objects);
+      setTotalPages(response.paging.totalPages);
+    }
+    setIsLoadingExam(false);
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchKeyword(value);
+    console.log("Giá trị tìm kiếm từ Header:", value);
+  };
+
+  useEffect(() => {
+    fetchExams();
+  }, [currentPage, searchKeyword]);
+
   return (
     <div className="flex flex-col w-full min-h-screen">
       {/* <!-- Top Header --> */}
-      <Header />
+      <Header onSearch={handleSearch} />
       {/* <!-- Main Content --> */}
       <main className="p-6 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
         <div className="flex flex-col items-center justify-center w-full">
@@ -111,7 +128,7 @@ const OngoingExams = () => {
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
                       {listExams && listExams.length > 0 ? (
                         <>
-                          {listExams.map((exam, index) => (
+                          {listExams.map((exam: any, index) => (
                             <tr className="hover:bg-gray-50 dark:hover:bg-gray-700">
                               <td className="px-6 py-4  text-sm font-medium text-gray-800 dark:text-white">
                                 {index + 1}
@@ -132,15 +149,15 @@ const OngoingExams = () => {
                                 {exam.durationMinutes}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
-                                {exam.created_by}
+                                {exam.createdByName}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
                                 <FontAwesomeIcon
                                   icon={faEye}
                                   className="text-yellow-500 dark:text-yellow-400 cursor-pointer mx-3"
                                   onClick={() => {
-                                    Navigate(
-                                      `/teacher/live-rankings/${index + 1}`
+                                    navigate(
+                                      `/teacher/live-rankings/${exam.id}`
                                     );
                                   }}
                                 />
@@ -155,46 +172,29 @@ const OngoingExams = () => {
                   </table>
                 </div>
                 <div className="py-1 px-4">
-                  <nav
-                    className="flex items-center space-x-1"
-                    aria-label="Pagination"
-                  >
-                    <button
-                      type="button"
-                      className="p-2.5 min-w-10 inline-flex justify-center items-center gap-x-2 text-sm rounded-full text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:bg-gray-100 dark:focus:bg-gray-700 disabled:opacity-50 disabled:pointer-events-none"
-                      aria-label="Previous"
-                    >
-                      <span aria-hidden="true">«</span>
-                      <span className="sr-only">Previous</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="min-w-10 flex justify-center items-center text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:bg-gray-100 dark:focus:bg-gray-700 py-2.5 text-sm rounded-full disabled:opacity-50 disabled:pointer-events-none"
-                      aria-current="page"
-                    >
-                      1
-                    </button>
-                    <button
-                      type="button"
-                      className="min-w-10 flex justify-center items-center text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:bg-gray-100 dark:focus:bg-gray-700 py-2.5 text-sm rounded-full disabled:opacity-50 disabled:pointer-events-none"
-                    >
-                      2
-                    </button>
-                    <button
-                      type="button"
-                      className="min-w-10 flex justify-center items-center text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:bg-gray-100 dark:focus:bg-gray-700 py-2.5 text-sm rounded-full disabled:opacity-50 disabled:pointer-events-none"
-                    >
-                      3
-                    </button>
-                    <button
-                      type="button"
-                      className="p-2.5 min-w-10 inline-flex justify-center items-center gap-x-2 text-sm rounded-full text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-hidden focus:bg-gray-100 dark:focus:bg-gray-700 disabled:opacity-50 disabled:pointer-events-none"
-                      aria-label="Next"
-                    >
-                      <span className="sr-only">Next</span>
-                      <span aria-hidden="true">»</span>
-                    </button>
-                  </nav>
+                  {totalPages > 0 && (
+                    <ReactPaginate
+                      nextLabel=">"
+                      onPageChange={handlePageClick}
+                      pageRangeDisplayed={1}
+                      marginPagesDisplayed={2}
+                      pageCount={totalPages}
+                      previousLabel="<"
+                      previousLinkClassName="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200"
+                      nextLinkClassName="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200"
+                      breakLabel="..."
+                      breakClassName="flex items-center justify-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300"
+                      breakLinkClassName="text-gray-700 dark:text-gray-300"
+                      renderOnZeroPageCount={null}
+                      containerClassName="flex items-center justify-center gap-2 my-1"
+                      pageClassName="flex items-center justify-center"
+                      pageLinkClassName="flex items-center justify-center px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-gray-300 rounded-md hover:bg-blue-50 dark:bg-gray-800 dark:text-blue-400 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200"
+                      activeClassName="bg-blue-600 text-white border-blue-600 dark:bg-blue-500 dark:border-blue-500"
+                      previousClassName="flex items-center justify-center"
+                      nextClassName="flex items-center justify-center"
+                      disabledClassName="opacity-50 cursor-not-allowed"
+                    />
+                  )}
                 </div>
               </div>
             </div>

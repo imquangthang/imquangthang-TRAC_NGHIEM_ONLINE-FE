@@ -18,7 +18,7 @@ const teacherRoutes = (Layouts: () => React.JSX.Element, _user: userState) => {
       <Route path="exams/:id" element={<ExamDetail />} />
       <Route path="questions" element={<Questions />} />
       <Route path="live-rankings" element={<OngoingExams />} />
-      <Route path="live-rankings/:id" element={<LiveRankings />} />
+      <Route path="live-rankings/:examId" element={<LiveRankings />} />
       <Route path="exam-history" element={<ExamHistory />} />
       <Route path="exam-history/:examId" element={<DetailExamHistory />} />
       <Route
