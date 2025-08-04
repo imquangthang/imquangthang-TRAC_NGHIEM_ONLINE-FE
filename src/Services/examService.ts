@@ -96,6 +96,25 @@ const submitExam = (
   );
 };
 
+const importFileQuestions = (data: ExamRequest, selectedFile: File) => {
+  const formData = new FormData();
+
+  // Thêm thông tin đề thi
+  formData.append("Title", data.Title);
+  formData.append("Description", data.Description);
+  formData.append("DurationMinutes", data.DurationMinutes.toString());
+
+  // Thêm file Excel
+  formData.append("Questions", selectedFile);
+
+  // Gửi API
+  return instance.post("/api/exam/import", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
 export {
   addNewExam,
   fetchAllExams,
@@ -103,4 +122,5 @@ export {
   updateExamDetail,
   deleteExam,
   submitExam,
+  importFileQuestions,
 };
