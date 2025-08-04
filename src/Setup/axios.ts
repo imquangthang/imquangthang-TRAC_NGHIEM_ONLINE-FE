@@ -1,5 +1,4 @@
 import axios from "axios";
-import { toast } from "react-toastify";
 
 // Lấy URL API từ biến môi trường
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -18,22 +17,22 @@ const handleAxiosError = (error: any) => {
 
   switch (status) {
     case 401:
-      toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+      console.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
       window.location.href = "/login";
       break;
     case 403:
-      toast.error("Bạn không có quyền truy cập tài nguyên này.");
+      console.error("Bạn không có quyền truy cập tài nguyên này.");
       window.location.href = "/login";
       break;
     default:
       if (message === "Network Error") {
-        toast.error(
+        console.error(
           "🌐 Không thể kết nối tới máy chủ. Kiểm tra mạng hoặc CORS."
         );
       } else if (error.code === "ECONNABORTED") {
-        toast.error("Hết thời gian kết nối tới máy chủ.");
+        console.error("Hết thời gian kết nối tới máy chủ.");
       } else {
-        toast.error(`Lỗi: ${message || "Đã xảy ra lỗi không xác định."}`);
+        console.error(`Lỗi: ${message || "Đã xảy ra lỗi không xác định."}`);
       }
       break;
   }

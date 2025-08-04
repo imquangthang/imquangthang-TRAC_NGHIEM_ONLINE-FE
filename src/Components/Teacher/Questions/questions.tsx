@@ -7,7 +7,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import type { Options, Question } from "../../../Types/question.type";
-import { addNewExam } from "../../../Services/examService";
+import { addNewExam, importFileQuestions } from "../../../Services/examService";
+import { useDispatch } from "react-redux";
+import {
+  setLoading,
+  setUnLoading,
+} from "../../../Redux/Reducer/loading.reducer";
 
 const Questions: React.FC = () => {
   const [openModalAddNewExam, setOpenModalAddNewExam] = useState(false);
@@ -31,7 +36,9 @@ const Questions: React.FC = () => {
   ]);
   const [explanation, setExplanation] = useState("");
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  const [selectedFile, setSelectedFile] = useState<File>();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const openModal = () => {
     setOpenModalAddNewExam(true);
@@ -101,6 +108,39 @@ const Questions: React.FC = () => {
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Kiểm tra phần đuôi file hoặc MIME type
+    const allowedExtensions = [".xlsx", ".xls"];
+    const fileName = file.name.toLowerCase();
+
+    const isExcel = allowedExtensions.some((ext) => fileName.endsWith(ext));
+    if (!isExcel) {
+      toast.error("Please upload a valid Excel file (.xlsx or .xls)");
+      return;
+    }
+
+    setSelectedFile(file);
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile) return;
+
+    dispatch(setLoading());
+    try {
+      const response: any = await importFileQuestions(examData, selectedFile);
+      if (response && response.code === 200)
+        toast.success("Upload successful!");
+      else throw new Error("Upload failed");
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast.error("Upload failed. Please try again.");
+    }
+    dispatch(setUnLoading());
   };
 
   return (
@@ -261,7 +301,7 @@ const Questions: React.FC = () => {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Select File (.DOCX){" "}
+                    Select Excel File (.XLSX, .XLS){" "}
                     <a
                       href="/src/assets/template.docx"
                       className="text-blue-500 hover:underline"
@@ -271,9 +311,19 @@ const Questions: React.FC = () => {
                   </label>
                   <input
                     type="file"
-                    accept=".docx"
+                    accept=".xlsx,.xls"
+                    onChange={handleFileChange}
                     className="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                   />
+
+                  {selectedFile && (
+                    <button
+                      onClick={handleUpload}
+                      className="px-4 py-2 my-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                    >
+                      Upload File
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
