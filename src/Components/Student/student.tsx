@@ -161,10 +161,10 @@ const Student: React.FC = () => {
                               <button
                                 className="mt-4 bg-blue-400 dark:bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 dark:hover:bg-blue-700"
                                 onClick={() =>
-                                  navigate(`/teacher/exams/${exam.id}`)
+                                  navigate(`/student/exam/${exam.id}`)
                                 }
                               >
-                                View Details
+                                Làm bài
                               </button>
                             </div>
                           </div>

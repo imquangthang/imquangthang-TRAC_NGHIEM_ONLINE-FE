@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ref, update, onValue, push, serverTimestamp } from "firebase/database";
+import { ref, update, onValue, serverTimestamp, set } from "firebase/database";
 import { db } from "../../../Setup/firebase";
 import Header from "../../Header/header";
 import { useParams } from "react-router-dom";
@@ -8,6 +8,7 @@ import type { ExamRequest } from "../../../Types/request.type";
 import { getExamDetail, submitExam } from "../../../Services/examService";
 import type { Options, Question } from "../../../Types/question.type";
 import { faFlag } from "@fortawesome/free-solid-svg-icons";
+import { toast } from "react-toastify";
 
 const ExamDetail = ({ userId }: { userId: string }) => {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +22,7 @@ const ExamDetail = ({ userId }: { userId: string }) => {
     [questionId: number]: boolean;
   }>({});
   const [submitted, setSubmitted] = useState(false);
+  const [score, setScore] = useState("0");
   const [timeRemaining, setTimeRemaining] = useState<number>();
   const [startTime, setStartTime] = useState<number | null>(null);
   const selectedAnswersRef = useRef(selectedAnswers);
@@ -202,31 +204,34 @@ const ExamDetail = ({ userId }: { userId: string }) => {
       })
     );
 
-    const score = exam?.Questions.reduce((total, q) => {
-      const correctAnswerId = q.Options.find((opt) => opt.IsCorrect)?.Id;
-      return total + (answers[q.Id!] === correctAnswerId ? 1 : 0);
-    }, 0);
-
     try {
       // Call the API using examService
-      await submitExam(exam?.Id!, apiAnswers);
+      setIsLoading(true);
+      const response: any = await submitExam(exam?.Id!, apiAnswers);
+      if (response && response.code === 200) {
+        setScore(response.data.Score);
+        // Update Firebase leaderboard
+        const leaderboardRef = ref(
+          db,
+          `exams/${exam?.Id}/leaderboard/${userId}`
+        );
+        await set(leaderboardRef, {
+          score,
+          selectedAnswers: answers,
+          submittedAt: serverTimestamp(),
+        });
 
-      // Update Firebase leaderboard
-      const leaderboardRef = ref(db, `exams/${exam?.Id}/leaderboard/${userId}`);
-      await push(leaderboardRef, {
-        score,
-        selectedAnswers: answers,
-        submittedAt: serverTimestamp(),
-      });
-
-      // Update Firebase exam state
-      await saveExamState({
-        selectedAnswers: answers,
-        flaggedQuestions,
-        startTime,
-        endTime: currentTime,
-        submitted: true,
-      });
+        // Update Firebase exam state
+        await saveExamState({
+          selectedAnswers: answers,
+          flaggedQuestions,
+          startTime,
+          endTime: currentTime,
+          submitted: true,
+        });
+      }
+      setIsLoading(false);
+      toast.success("Exam submitted successfully!");
     } catch (error) {
       console.error("Error submitting exam:", error);
       setSubmitted(false); // Revert state on error to allow retry
@@ -293,7 +298,6 @@ const ExamDetail = ({ userId }: { userId: string }) => {
                       <div className="flex items-center gap-1">
                         Answer saved
                       </div>
-                      <div className="flex items-center gap-1">Score 1.00</div>
                       <button
                         onClick={() => handleFlagToggle(q.Id!)}
                         className="flex items-center gap-1 hover:text-blue-600"
@@ -380,6 +384,13 @@ const ExamDetail = ({ userId }: { userId: string }) => {
                   <p>
                     <strong>Time Limit:</strong> {exam.DurationMinutes} minutes
                   </p>
+                  {submitted && (
+                    <>
+                      <p className="font-medium text-xl text-red-600 mb-2 border-b-2">
+                        <strong>Score:</strong> {score} points
+                      </p>
+                    </>
+                  )}
                   <div className="p-4 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
                     <p className="font-medium text-2xl text-blue-600 mb-2 border-b-2 text-center">
                       List of Questions ({exam.Questions.length})

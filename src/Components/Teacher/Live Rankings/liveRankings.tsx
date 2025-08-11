@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { ref, onValue } from "firebase/database";
-import { db } from "../../../Setup/firebase";
+import { ref, onValue, get } from "firebase/database";
+import { auth, db } from "../../../Setup/firebase";
 import Header from "../../Header/header";
 import { useParams } from "react-router-dom";
 import type { Student } from "../../../Interface/student.interface";
@@ -23,7 +23,6 @@ const LiveRankings = () => {
     }
     try {
       const response: any = await getExamDetail(parseInt(examId));
-      console.log(response);
 
       if (response) {
         const examData: ExamRequest = {
@@ -53,14 +52,14 @@ const LiveRankings = () => {
   // Load exam data
   useEffect(() => {
     loadExamData();
+    console.log("Firebase listener for examId:", auth.currentUser);
   }, [loadExamData]);
 
-  // Load student data from Realtime Database
   useEffect(() => {
     if (!examId || !examDetail || totalQuestions === 0) return;
 
     const studentsRef = ref(db, `exams/${examId}/students`);
-    const unsubscribeStudents = onValue(studentsRef, (snapshot) => {
+    const unsubscribeStudents = onValue(studentsRef, async (snapshot) => {
       const data = snapshot.val();
       if (!data) {
         setStudents([]);
@@ -69,24 +68,39 @@ const LiveRankings = () => {
         return;
       }
 
-      const studentList: Student[] = Object.entries(data).map(
-        ([userId, studentData]: [string, any]) => {
-          const answered = studentData.selectedAnswers
-            ? Object.keys(studentData.selectedAnswers).length
-            : 0;
-          return {
-            userId,
-            name: studentData.name || userId,
-            answered,
-            total: totalQuestions,
-            startTime: studentData.startTime || Date.now(),
-            endTime: studentData.endTime,
-            submitted: studentData.submitted || false,
-          };
-        }
+      // Dùng Promise.all để xử lý bất đồng bộ đúng cách
+      const studentList: Student[] = await Promise.all(
+        Object.entries(data).map(
+          async ([userId, studentData]: [string, any]) => {
+            let name = "Unknown";
+
+            try {
+              const nameSnapshot = await get(ref(db, `users/${userId}/name`));
+              if (nameSnapshot.exists()) {
+                name = nameSnapshot.val().toString();
+              }
+            } catch (error) {
+              console.error(`Failed to fetch name for user ${userId}:`, error);
+            }
+
+            const answered = studentData.selectedAnswers
+              ? Object.keys(studentData.selectedAnswers).length
+              : 0;
+
+            return {
+              userId,
+              name,
+              answered,
+              total: totalQuestions,
+              startTime: studentData.startTime || Date.now(),
+              endTime: studentData.endTime,
+              submitted: studentData.submitted || false,
+            };
+          }
+        )
       );
 
-      // Sort by answered questions (descending) and startTime (ascending)
+      // Sắp xếp
       studentList.sort((a, b) => {
         if (a.answered !== b.answered) {
           return b.answered - a.answered;
@@ -94,7 +108,7 @@ const LiveRankings = () => {
         return a.startTime - b.startTime;
       });
 
-      // Update elapsed times, preserving times for submitted students
+      // Cập nhật thời gian làm bài
       setElapsedTimes((prevElapsedTimes) => {
         const updatedTimes = { ...prevElapsedTimes };
         studentList.forEach((student) => {

@@ -10,6 +10,12 @@ import {
   setUnLoading,
 } from "../../Redux/Reducer/loading.reducer.ts";
 import { loginUserRedux } from "../../Redux/Reducer/user.reducer.ts";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import { auth, db } from "../../Setup/firebase.ts";
+import { ref, set } from "firebase/database";
 
 const LogIn = () => {
   // const user = useSelector((state: any) => state.user) || {};
@@ -22,56 +28,129 @@ const LogIn = () => {
 
   const handleLogin = async () => {
     dispatch(setLoading());
-    let response: any = await login(valueLogin, password);
-    dispatch(setUnLoading());
+    try {
+      // Try backend login
+      let response: any = await login(valueLogin, password);
 
-    if (response && +response.code === 200) {
-      toast.success(response.EM);
-      // Success
-      let Role = response.data?.Role;
-      let Token = response.data?.Token;
-      let Id = response.data?.Id;
-      let Username = response.data?.Username;
-      let FirstName = response.data?.FirstName || "";
-      let LastName = response.data?.LastName || "";
-      let Gender = response.data?.Gender || "";
-      let Birthdate = response.data?.Birthdate || "";
-
-      let data = {
-        isAuthenticated: true,
-        Token,
-        account: {
-          Id,
-          Username,
+      if (response && +response.code === 200) {
+        toast.success(response.EM);
+        const {
           Role,
-          FirstName,
-          LastName,
-          Gender,
-          Birthdate,
-        },
-      };
+          Token,
+          Id,
+          Email,
+          Username,
+          FirstName = "",
+          LastName = "",
+          Gender = "",
+          Birthdate = "",
+        } = response.data;
 
-      localStorage.setItem("jwt", Token);
-      localStorage.setItem("user", JSON.stringify(data));
-      dispatch(loginUserRedux(data));
-      switch (Role) {
-        case "0":
-          navigate("/admin");
-          break;
-        case "1":
-          navigate("/teacher");
-          break;
-        case "2":
-          navigate("/student");
-          break;
-        default:
-          navigate("/");
-          break;
+        // Map backend roles to Firebase roles
+        const roleMap: { [key: string]: string } = {
+          "0": "admin",
+          "1": "teacher",
+          "2": "student",
+        };
+        const firebaseRole = roleMap[Role] || "student";
+
+        // Validate name
+        const name =
+          `${FirstName} ${LastName}`.trim() || Username || "New User";
+        if (!name) {
+          throw new Error("Tên người dùng không hợp lệ.");
+        }
+
+        try {
+          // Try Firebase login
+          let uid: string;
+          try {
+            const userCredential = await signInWithEmailAndPassword(
+              auth,
+              Email,
+              password
+            );
+            uid = userCredential.user.uid;
+          } catch (err: any) {
+            if (err.code === "auth/invalid-credential") {
+              // Auto-register
+              const userCredential = await createUserWithEmailAndPassword(
+                auth,
+                Email,
+                password
+              );
+              uid = userCredential.user.uid;
+            } else {
+              throw err;
+            }
+          }
+
+          // Save user data to Firebase (exclude role)
+          await set(ref(db, `users/${uid}`), {
+            name,
+            email: Email,
+          }).catch((err) => {
+            console.error("Error setting user data:", err);
+            throw new Error(
+              `Không thể lưu thông tin người dùng: ${err.message}`
+            );
+          });
+
+          // Save role to roles/$uid
+          await set(ref(db, `roles/${uid}`), firebaseRole).catch((err) => {
+            console.error("Error setting role:", err);
+            throw new Error(`Không thể gán vai trò: ${err.message}`);
+          });
+
+          // Store data in Redux and localStorage
+          const data = {
+            isAuthenticated: true,
+            Token,
+            account: {
+              Id,
+              Firebase_Uid: uid,
+              Email,
+              Username,
+              Role,
+              FirstName,
+              LastName,
+              Gender,
+              Birthdate,
+            },
+          };
+
+          localStorage.setItem("jwt", Token);
+          localStorage.setItem("user", JSON.stringify(data));
+          dispatch(loginUserRedux(data));
+
+          // Navigate based on role
+          switch (firebaseRole) {
+            case "admin":
+              navigate("/admin");
+              break;
+            case "teacher":
+              navigate("/teacher");
+              break;
+            case "student":
+              navigate("/student");
+              break;
+            default:
+              navigate("/");
+              break;
+          }
+        } catch (err: any) {
+          toast.error(`Lỗi Firebase: ${err.message}`);
+        }
+      } else {
+        toast.error(response.msgNo || "Lỗi đăng nhập từ backend");
       }
-    } else {
-      // ERROR
-      toast.error(response.msgNo);
+    } catch (err: any) {
+      toast.error(`Lỗi đăng nhập: ${err.message}`);
+    } finally {
+      dispatch(setUnLoading());
     }
+
+    console.log(auth);
   };
 
   const handlePressEnter = (event: any) => {

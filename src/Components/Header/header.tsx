@@ -11,13 +11,17 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import ModalUpdateUser from "../Admin/User Management/modalUpdateUser";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { auth } from "../../Setup/firebase";
+import { setLoading, setUnLoading } from "../../Redux/Reducer/loading.reducer";
+import { toast } from "react-toastify";
 
 const Header = ({ onSearch }: { onSearch?: (value: string) => void }) => {
   const user = useSelector((state: any) => state.user) || {};
   const [darkMode, setDarkMode] = useState(false);
   const [open, setOpen] = useState(false);
   const [valueSearch, setValueSearch] = useState("");
+  const dispatch = useDispatch();
 
   const openModal = () => {
     setOpen(true);
@@ -36,6 +40,26 @@ const Header = ({ onSearch }: { onSearch?: (value: string) => void }) => {
   const handlePressEnter = (event: any) => {
     if (event.code === "Enter") {
       sendValueSearch();
+    }
+  };
+
+  // Đăng xuất
+  const handleLogout = async () => {
+    if (!auth.currentUser) {
+      dispatch(setUnLoading());
+      return;
+    }
+    dispatch(setLoading());
+    try {
+      // Clear localStorage and Redux
+      localStorage.removeItem("jwt");
+      localStorage.removeItem("user");
+
+      toast.success("Đăng xuất và xóa tài khoản thành công");
+    } catch (err: any) {
+      toast.error(`Lỗi khi đăng xuất và xóa tài khoản: ${err.message}`);
+    } finally {
+      dispatch(setUnLoading());
     }
   };
 
@@ -141,10 +165,7 @@ const Header = ({ onSearch }: { onSearch?: (value: string) => void }) => {
               <div className="py-2">
                 <Link
                   to="/login"
-                  onClick={() => {
-                    localStorage.removeItem("jwt");
-                    localStorage.removeItem("user");
-                  }}
+                  onClick={() => handleLogout()}
                   className="block px-4 py-2 font-medium text-sm text-gray-700 hover:text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                 >
                   <FontAwesomeIcon

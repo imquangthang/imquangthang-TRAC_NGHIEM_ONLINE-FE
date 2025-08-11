@@ -15,7 +15,7 @@ const studentRoutes = (Layouts: () => React.JSX.Element, user: userState) => {
       <Route path="exams" element={<StudentExams />} />
       <Route
         path="exam/:id"
-        element={<ExamDetail userId={user?.account?.Id} />}
+        element={<ExamDetail userId={user?.account?.Firebase_Uid} />}
       />
       <Route path="leaderboard" element={<Leaderboard />} />
       <Route path="leaderboard/:id" element={<LeaderboardDetail />} />
