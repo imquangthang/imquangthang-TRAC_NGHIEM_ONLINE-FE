@@ -3,6 +3,7 @@ export type userState = {
   Token: string;
   account: {
     Id: string;
+    Firebase_Uid: string;
     Username: string;
     Role: string;
     FirstName?: string;

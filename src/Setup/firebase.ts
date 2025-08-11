@@ -1,5 +1,12 @@
 // Firebase setup for a web application
 import { initializeApp } from "firebase/app";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  deleteUser,
+} from "firebase/auth";
 import { getDatabase } from "firebase/database";
 // import { getFirestore } from "firebase/firestore";
 const firebaseConfig = {
@@ -16,7 +23,13 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+export const db = getDatabase(app);
+export const auth = getAuth(app);
 
 // Export the initialized Firebase app and database reference
-export { db };
+export {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  deleteUser,
+};
