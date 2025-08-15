@@ -47,15 +47,29 @@ const Questions: React.FC = () => {
   const handleAddQuestion = () => {
     // Validate inputs
     if (!questionText.trim()) {
-      toast("Please enter a question");
+      toast("Nội dung câu hỏi không được để trống");
       return;
     }
-    if (options.every((opt) => !opt.Content.trim())) {
-      toast("Please enter at least one option");
+
+    // Kiểm tra xem có đáp án nào bị để trống không
+    const hasEmptyOption = options.some((opt) => !opt.Content.trim());
+    if (hasEmptyOption) {
+      toast("Đáp án không được để trống");
       return;
     }
+
+    // Kiểm tra xem có đáp án nào trùng nhau không
+    const optionContents = options.map((opt) => opt.Content.trim());
+    const hasDuplicateOption =
+      new Set(optionContents).size !== optionContents.length;
+    if (hasDuplicateOption) {
+      toast("Đáp án không được trùng nhau");
+      return;
+    }
+
+    // Kiểm tra xem có ít nhất một đáp án đúng
     if (!options.some((opt) => opt.IsCorrect)) {
-      toast("Please select a correct answer");
+      toast("Chọn 1 đáp án đúng cho câu hỏi này");
       return;
     }
 
@@ -133,9 +147,10 @@ const Questions: React.FC = () => {
     dispatch(setLoading());
     try {
       const response: any = await importFileQuestions(examData, selectedFile);
-      if (response && response.code === 200)
+      if (response && response.code === 200) {
         toast.success("Upload successful!");
-      else throw new Error("Upload failed");
+        navigate("/teacher/exams");
+      } else throw new Error("Upload failed");
     } catch (error) {
       console.error("Error uploading file:", error);
       toast.error("Upload failed. Please try again.");

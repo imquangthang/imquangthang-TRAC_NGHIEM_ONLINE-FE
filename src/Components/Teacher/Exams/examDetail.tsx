@@ -170,17 +170,40 @@ const ExamDetail = () => {
 
   // Add new question
   const handleAddQuestion = () => {
+    // Kiểm tra nội dung câu hỏi không được để trống
     if (!questionForm.Content.trim()) {
-      alert("Please enter question content");
+      toast.warning("Nội dung câu hỏi không được để trống");
       return;
     }
 
+    // Kiểm tra xem có đáp án nào bị để trống không
+    const hasEmptyOption = questionForm.Options.some(
+      (opt) => !opt.Content.trim()
+    );
+    if (hasEmptyOption) {
+      toast.warning("Đáp án không được để trống");
+      return;
+    }
+
+    // Kiểm tra xem có đáp án nào trùng nhau không
+    const optionContents = questionForm.Options.map((opt) =>
+      opt.Content.trim()
+    );
+    const hasDuplicateOption =
+      new Set(optionContents).size !== optionContents.length;
+    if (hasDuplicateOption) {
+      toast.warning("Đáp án không được trùng nhau");
+      return;
+    }
+
+    // Kiểm tra xem có ít nhất một đáp án đúng
     const hasCorrectAnswer = questionForm.Options.some((opt) => opt.IsCorrect);
     if (!hasCorrectAnswer) {
-      alert("Please select at least one correct answer");
+      toast.warning("Chọn 1 đáp án đúng cho câu hỏi này");
       return;
     }
 
+    // Nếu tất cả điều kiện đều thỏa mãn, thêm câu hỏi vào danh sách
     setCurrentExam((prev) => ({
       ...prev,
       Questions: [...(prev.Questions || []), questionForm],

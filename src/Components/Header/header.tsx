@@ -55,9 +55,9 @@ const Header = ({ onSearch }: { onSearch?: (value: string) => void }) => {
       localStorage.removeItem("jwt");
       localStorage.removeItem("user");
 
-      toast.success("Đăng xuất và xóa tài khoản thành công");
+      toast.success("Đăng xuất thành công!");
     } catch (err: any) {
-      toast.error(`Lỗi khi đăng xuất và xóa tài khoản: ${err.message}`);
+      console.error(`Lỗi khi đăng xuất và xóa tài khoản: ${err.message}`);
     } finally {
       dispatch(setUnLoading());
     }
