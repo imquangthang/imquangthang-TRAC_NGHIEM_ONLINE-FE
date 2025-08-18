@@ -27,6 +27,19 @@ const ExamDetail = ({ userId }: { userId: string }) => {
   const [startTime, setStartTime] = useState<number | null>(null);
   const selectedAnswersRef = useRef(selectedAnswers);
   const [openModalSubmit, setOpenModalSubmit] = useState(false);
+  const [clickedIndex, setClickedIndex] = useState<number>(-1);
+
+  const handleClick = (index: number) => {
+    const questionElement = document.getElementById(`question-${index + 1}`);
+    if (questionElement) {
+      questionElement.scrollIntoView({
+        behavior: "smooth",
+      });
+    }
+    setClickedIndex(index);
+    // Reset animation after it completes (1s)
+    setTimeout(() => setClickedIndex(-1), 1000);
+  };
 
   const loadExamData = useCallback(async () => {
     if (!id) {
@@ -285,7 +298,10 @@ const ExamDetail = ({ userId }: { userId: string }) => {
               {exam?.Questions.map((q: Question) => (
                 <div
                   key={q.Id}
-                  className="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200 flex gap-4 items-start"
+                  className={`bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200 flex gap-4 items-start ${
+                    clickedIndex === q.Id ? "scale-105 bg-red-50" : "scale-100"
+                  }`}
+                  id={`question-${q.Id! + 1}`}
                 >
                   <div style={{ width: "18%" }} className="shrink-0">
                     <h2 className="font-semibold text-base mb-3">
@@ -372,75 +388,82 @@ const ExamDetail = ({ userId }: { userId: string }) => {
             {exam && (
               <>
                 <div className="w-full md:w-1/3 p-4 border rounded-lg shadow-sm bg-white">
-                  <p>
-                    <strong>Title:</strong> {exam.Title}
-                  </p>
-                  <p>
-                    <strong>Id:</strong> {exam.Id}
-                  </p>
-                  <p>
-                    <strong>Description:</strong> {exam.Description}
-                  </p>
-                  <p>
-                    <strong>Time Limit:</strong> {exam.DurationMinutes} minutes
-                  </p>
-                  {submitted && (
-                    <>
-                      <p className="font-medium text-xl text-red-600 mb-2 border-b-2">
-                        <strong>Score:</strong> {score} points
-                      </p>
-                    </>
-                  )}
-                  <div className="p-4 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
-                    <p className="font-medium text-2xl text-blue-600 mb-2 border-b-2 text-center">
-                      List of Questions ({exam.Questions.length})
+                  <div className="fixed">
+                    <p>
+                      <strong>Title:</strong> {exam.Title}
                     </p>
-                    <div className="grid grid-cols-5 gap-2">
-                      {exam.Questions.map((q) => (
-                        <button
-                          key={q.Id}
-                          className={`border px-3 py-1 rounded text-sm flex items-center justify-center ${
-                            submitted
-                              ? selectedAnswers[q.Id!] ===
-                                q.Options.find((opt) => opt.IsCorrect)?.Id
-                                ? "bg-green-100 border-green-500"
-                                : selectedAnswers[q.Id!]
-                                ? "bg-red-100 border-red-500"
-                                : "bg-white border-gray-300"
-                              : selectedAnswers[q.Id!]
-                              ? "bg-gray-300 border-black"
-                              : "bg-white hover:bg-blue-100 border-gray-300"
-                          }`}
-                        >
-                          {flaggedQuestions[q.Id!] && (
-                            <FontAwesomeIcon
-                              icon={faFlag}
-                              className="text-red-500 mr-1 text-xs"
-                            />
-                          )}
-                          {exam.Questions.findIndex(
-                            (question) => question.Id === q.Id
-                          ) + 1}
-                        </button>
-                      ))}
-                    </div>
-                    {!submitted ? (
+                    <p>
+                      <strong>Id:</strong> {exam.Id}
+                    </p>
+                    <p>
+                      <strong>Description:</strong> {exam.Description}
+                    </p>
+                    <p>
+                      <strong>Time Limit:</strong> {exam.DurationMinutes}{" "}
+                      minutes
+                    </p>
+                    {submitted && (
                       <>
-                        <button
-                          className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-500"
-                          onClick={() => setOpenModalSubmit(true)}
-                        >
-                          Finish Attempt
-                        </button>
-                        <p className="mt-2 text-sm text-center text-gray-700">
-                          Thời gian còn lại: <b>{formatTime(timeRemaining!)}</b>
+                        <p className="font-medium text-xl text-red-600 mb-2 border-b-2">
+                          <strong>Score:</strong> {score} points
                         </p>
                       </>
-                    ) : (
-                      <p className="mt-4 font-semibold text-green-700">
-                        You have submitted the exam.
-                      </p>
                     )}
+                    <div className="p-4 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
+                      <p className="font-medium text-2xl text-blue-600 mb-2 border-b-2 text-center">
+                        List of Questions ({exam.Questions.length})
+                      </p>
+                      <div className="grid grid-cols-5 gap-2">
+                        {exam.Questions.map((q) => (
+                          <button
+                            key={q.Id}
+                            className={`border px-0 py-1 rounded text-sm flex items-center justify-center ${
+                              submitted
+                                ? selectedAnswers[q.Id!] ===
+                                  q.Options.find((opt) => opt.IsCorrect)?.Id
+                                  ? "bg-green-100 border-green-500"
+                                  : selectedAnswers[q.Id!]
+                                  ? "bg-red-100 border-red-500"
+                                  : "bg-white border-gray-300"
+                                : selectedAnswers[q.Id!]
+                                ? "bg-gray-300 border-black"
+                                : "bg-white hover:bg-blue-100 border-gray-300"
+                            }`}
+                            onClick={() => {
+                              handleClick(q.Id!);
+                            }}
+                          >
+                            {flaggedQuestions[q.Id!] && (
+                              <FontAwesomeIcon
+                                icon={faFlag}
+                                className="text-red-500 mr-1 text-xs"
+                              />
+                            )}
+                            {exam.Questions.findIndex(
+                              (question) => question.Id === q.Id
+                            ) + 1}
+                          </button>
+                        ))}
+                      </div>
+                      {!submitted ? (
+                        <>
+                          <button
+                            className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-500"
+                            onClick={() => setOpenModalSubmit(true)}
+                          >
+                            Finish Attempt
+                          </button>
+                          <p className="mt-2 text-sm text-center text-gray-700">
+                            Thời gian còn lại:{" "}
+                            <b>{formatTime(timeRemaining!)}</b>
+                          </p>
+                        </>
+                      ) : (
+                        <p className="mt-4 font-semibold text-green-700">
+                          You have submitted the exam.
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </>

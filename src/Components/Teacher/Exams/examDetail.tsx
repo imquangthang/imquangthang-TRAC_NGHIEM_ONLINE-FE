@@ -61,6 +61,20 @@ const ExamDetail = () => {
     ],
   });
 
+  const [clickedIndex, setClickedIndex] = useState<number>(-1);
+
+  const handleClick = (index: number) => {
+    const questionElement = document.getElementById(`question-${index + 1}`);
+    if (questionElement) {
+      questionElement.scrollIntoView({
+        behavior: "smooth",
+      });
+    }
+    setClickedIndex(index);
+    // Reset animation after it completes (1s)
+    setTimeout(() => setClickedIndex(-1), 1000);
+  };
+
   // Load exam data
   const loadExamData = useCallback(async () => {
     if (!id) {
@@ -353,7 +367,10 @@ const ExamDetail = () => {
                 {currentExam?.Questions?.map((q: Question, i: number) => (
                   <div
                     key={i}
-                    className="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200 flex gap-4 items-start"
+                    className={`bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200 flex gap-4 items-start transition-transform duration-300 ${
+                      clickedIndex === i ? "scale-105 bg-red-50" : "scale-100"
+                    }`}
+                    id={`question-${i + 1}`}
                   >
                     <div style={{ width: "18%" }} className="shrink-0">
                       <h2 className="font-semibold text-base mb-3">
@@ -419,44 +436,49 @@ const ExamDetail = () => {
               </div>
 
               {/* Sidebar */}
-              <div className="w-full md:w-1/3 p-4 border rounded-lg shadow-sm bg-white">
-                <button
-                  onClick={() => setIsEditingExam(true)}
-                  className="mb-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-500"
-                >
-                  Edit Exam Details
-                </button>
-                <p>
-                  <strong>Title:</strong> {currentExam?.Title}
-                </p>
-                <p>
-                  <strong>ID:</strong> {currentExam?.Id}
-                </p>
-                <p>
-                  <strong>Description:</strong> {currentExam?.Description}
-                </p>
-                <p>
-                  <strong>Duration:</strong> {currentExam?.DurationMinutes}{" "}
-                  minutes
-                </p>
-
-                <div className="p-4 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
-                  <p className="font-medium text-2xl text-blue-600 mb-2 border-b-2 text-center">
-                    List of Questions ({currentExam?.Questions?.length || 0})
-                  </p>
-                  <div className="grid grid-cols-5 gap-2">
-                    {currentExam?.Questions?.map((_, i) => (
-                      <button
-                        key={i}
-                        className="border px-3 py-1 rounded text-sm bg-white hover:bg-blue-100"
-                      >
-                        {i + 1}
-                      </button>
-                    ))}
-                  </div>
-                  <button className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-500">
-                    Preview
+              <div className="w-full md:w-1/3 p-4 border rounded-lg shadow-sm bg-white ">
+                <div className="fixed">
+                  <button
+                    onClick={() => setIsEditingExam(true)}
+                    className="mb-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-500"
+                  >
+                    Edit Exam Details
                   </button>
+                  <p>
+                    <strong>Title:</strong> {currentExam?.Title}
+                  </p>
+                  <p>
+                    <strong>ID:</strong> {currentExam?.Id}
+                  </p>
+                  <p>
+                    <strong>Description:</strong> {currentExam?.Description}
+                  </p>
+                  <p>
+                    <strong>Duration:</strong> {currentExam?.DurationMinutes}{" "}
+                    minutes
+                  </p>
+
+                  <div className="p-4 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
+                    <p className="font-medium text-2xl text-blue-600 mb-2 border-b-2 text-center">
+                      List of Questions ({currentExam?.Questions?.length || 0})
+                    </p>
+                    <div className="grid grid-cols-5 gap-2">
+                      {currentExam?.Questions?.map((_, i) => (
+                        <button
+                          key={i}
+                          className="border px-3 py-1 rounded text-sm bg-white hover:bg-blue-100"
+                          onClick={() => {
+                            handleClick(i);
+                          }}
+                        >
+                          {i + 1}
+                        </button>
+                      ))}
+                    </div>
+                    <button className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-500">
+                      Preview
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
