@@ -4,7 +4,6 @@ import {
   faBars,
   faBookOpen,
   faFloppyDisk,
-  faServer,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import Logo from "../../Assets/logo.png";
@@ -75,7 +74,7 @@ const StudentNav = ({ isMenuOpen, toggleMenu }: any) => {
         </li>
 
         {/* Leaderboard Link */}
-        <li className="mb-5">
+        {/* <li className="mb-5">
           <Link
             to="/student/leaderboard"
             onClick={() => isMenuOpen && toggleMenu()}
@@ -94,7 +93,7 @@ const StudentNav = ({ isMenuOpen, toggleMenu }: any) => {
               <span>Leaderboard</span>
             </div>
           </Link>
-        </li>
+        </li> */}
 
         {/* Exam History Link */}
         <li className="mb-5">
