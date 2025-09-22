@@ -1,25 +1,30 @@
 import { useRef, useState } from "react";
 import _ from "lodash";
 import { v4 as uuidv4 } from "uuid";
-// import { toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlusCircle, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 
 import TableRoles from "./TableRoles";
-// import { createRoles } from "../../../services/roleService";
+import { createRoles } from "../../../../Services/roleService";
 
 // Define the shape of a child item
 interface RoleData {
-  url: string;
+  title: string;
   description: string;
-  isValidUrl: boolean;
+  isValidtitle: boolean;
 }
 
+const initialChild = {
+  title: "",
+  description: "",
+  isValidtitle: true,
+};
 const Role = () => {
   const dataChildDefault: RoleData = {
-    url: "",
+    title: "",
     description: "",
-    isValidUrl: true,
+    isValidtitle: true,
   };
 
   const childRef = useRef<{ fetListRolesAgain: () => void }>(null);
@@ -29,14 +34,14 @@ const Role = () => {
   });
 
   const handleOnChangeInput = (
-    name: "url" | "description",
+    name: "title" | "description",
     value: string,
     key: string
   ) => {
     const _listChilds = _.cloneDeep(listChilds);
     _listChilds[key][name] = value;
-    if (value && name === "url") {
-      _listChilds[key]["isValidUrl"] = true;
+    if (value && name === "title") {
+      _listChilds[key]["isValidtitle"] = true;
     }
     setListChilds(_listChilds);
   };
@@ -53,36 +58,39 @@ const Role = () => {
     setListChilds(_listChilds);
   };
 
-  // const buildDataToPersist = () => {
-  //   const _listChilds = _.cloneDeep(listChilds);
-  //   const result = Object.entries(_listChilds).map(([key, child]) => {
-  //     const roleChild = child as RoleData;
-  //     return {
-  //       url: roleChild.url,
-  //       description: roleChild.description,
-  //     };
-  //   });
-  //   return result;
-  // };
+  const buildDataToPersist = () => {
+    const _listChilds = _.cloneDeep(listChilds);
+    const result = Object.entries(_listChilds).map(([key, child]) => {
+      const roleChild = child as RoleData;
+      return {
+        title: roleChild.title,
+        description: roleChild.description,
+      };
+    });
+    return result;
+  };
 
   const handleSave = async () => {
-    // const invalidObj = Object.entries(listChilds).find(
-    //   ([key, child]) => child && !child.url
-    // );
-    // if (!invalidObj) {
-    //   const data = buildDataToPersist();
-    //   const res = await createRoles(data);
-    //   if (res && res.EC === 0) {
-    //     toast.success(res.EM);
-    //     childRef.current?.fetListRolesAgain();
-    //   }
-    // } else {
-    //   toast.error("Input URL must not be empty...");
-    //   const _listChilds = _.cloneDeep(listChilds);
-    //   const key = invalidObj[0];
-    //   _listChilds[key]["isValidUrl"] = false;
-    //   setListChilds(_listChilds);
-    // }
+    const invalidObj = Object.entries(listChilds).find(
+      ([key, child]) => child && !child.title
+    );
+    if (!invalidObj) {
+      const data = buildDataToPersist();
+      const res = await createRoles(data);
+      if (res) {
+        toast.success("Tạo role thành công");
+        childRef.current?.fetListRolesAgain();
+        setListChilds({
+        0: { ...initialChild },
+      });
+      }
+    } else {
+      toast.error("Title không được để trống...");
+      const _listChilds = _.cloneDeep(listChilds);
+      const key = invalidObj[0];
+      _listChilds[key]["isValidtitle"] = false;
+      setListChilds(_listChilds);
+    }
   };
 
   return (
@@ -95,18 +103,18 @@ const Role = () => {
           <div key={`child-${key}`} className="flex items-end gap-4">
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                URL
+                Url
               </label>
               <input
                 type="text"
                 className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white ${
-                  child.isValidUrl
+                  child.isValidtitle
                     ? "border-gray-300 dark:border-gray-600"
                     : "border-red-500 dark:border-red-400"
                 }`}
-                value={child.url}
+                value={child.title}
                 onChange={(event) =>
-                  handleOnChangeInput("url", event.target.value, key)
+                  handleOnChangeInput("title", event.target.value, key)
                 }
               />
             </div>

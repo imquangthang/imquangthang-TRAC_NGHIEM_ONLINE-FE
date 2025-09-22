@@ -1,30 +1,15 @@
 import { useEffect, useState, forwardRef, useImperativeHandle } from "react";
-// import {
-//   fetchAllRolesWithPaging,
-//   deleteRole,
-// } from "../../../services/roleService";
+import {
+  fetchAllRoles,
+  deleteRole,
+} from "../../../../Services/roleService";
 import { toast } from "react-toastify";
 import ReactPaginate from "react-paginate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { Skeleton } from "@mui/material";
+import type { Role } from "../../../../Types/role.type";
 
-// Define the shape of a role
-interface Role {
-  _id: string;
-  url: string;
-  description: string;
-}
-
-// Define the shape of the API response
-interface RoleResponse {
-  EC: number;
-  EM: string;
-  DT: {
-    totalPages: number;
-    roles: Role[];
-  };
-}
 
 const TableRoles = forwardRef((props, ref) => {
   const [listRoles, setListRoles] = useState<Role[]>([]);
@@ -40,44 +25,36 @@ const TableRoles = forwardRef((props, ref) => {
   useEffect(() => {
     getAllRoles();
   }, [currentPage, currentLimit]);
-
+  
   useImperativeHandle(ref, () => ({
-    fetchListRolesAgain: () => {
-      getAllRoles();
-    },
+    fetListRolesAgain: getAllRoles,
   }));
 
   const getAllRoles = async () => {
-    // setIsLoading(true);
-    // try {
-    //   const data: RoleResponse = await fetchAllRolesWithPaging(
-    //     currentPage,
-    //     currentLimit
-    //   );
-    //   if (data && data.EC === 0) {
-    //     setTotalPages(data.DT.totalPages);
-    //     setListRoles(data.DT.roles);
-    //   }
-    // } catch (error) {
-    //   console.error("Error fetching roles:", error);
-    //   toast.error("Failed to fetch roles");
-    // }
-    // setIsLoading(false);
+    setIsLoading(true);
+    try {
+      const res = await fetchAllRoles();
+      setListRoles(res);
+    } catch (error) {
+      console.error("Error fetching roles:", error);
+      toast.error("Failed to fetch roles");
+    }
+    setIsLoading(false);
   };
 
   const handleDeleteRole = async (role: Role) => {
-    // try {
-    //   const data: { EC: number; EM: string } = await deleteRole(role);
-    //   if (data && data.EC === 0) {
-    //     toast.success(data.EM);
-    //     await getAllRoles();
-    //   } else {
-    //     toast.error(data.EM || "Failed to delete role");
-    //   }
-    // } catch (error) {
-    //   console.error("Error deleting role:", error);
-    //   toast.error("Failed to delete role");
-    // }
+    try {
+      const res = await deleteRole(role.id);
+      if (res && res.code === 200) {
+        toast.success("Xóa role thành công");
+        await getAllRoles();
+      } else {
+        toast.error("Xóa role thất bại");
+      }
+    } catch (error) {
+      console.error("❌ Error deleting role:", error);
+      toast.error("Có lỗi xảy ra khi xóa role");
+    }
   };
 
   return (
@@ -127,10 +104,10 @@ const TableRoles = forwardRef((props, ref) => {
                 className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 <td className="p-4 text-gray-900 dark:text-gray-200">
-                  {item._id}
+                  {item.id}
                 </td>
                 <td className="p-4 text-gray-900 dark:text-gray-200">
-                  {item.url}
+                  {item.name}
                 </td>
                 <td className="p-4 text-gray-900 dark:text-gray-200">
                   {item.description}
