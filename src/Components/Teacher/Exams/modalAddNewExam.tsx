@@ -12,6 +12,7 @@ const ModalAddNewExam: React.FC<ModalUpdateUserProps> = ({ open, onClose }) => {
     Title: "",
     Description: "",
     DurationMinutes: 0,
+    StartTime: "",
     Questions: [],
   });
   const navigate = useNavigate();
@@ -28,7 +29,8 @@ const ModalAddNewExam: React.FC<ModalUpdateUserProps> = ({ open, onClose }) => {
     if (
       isEmpty(examData.Title) ||
       isEmpty(examData.Description) ||
-      isEmpty(examData.DurationMinutes)
+      isEmpty(examData.DurationMinutes) ||
+      isEmpty(examData.StartTime)
     ) {
       return;
     }
@@ -140,6 +142,35 @@ const ModalAddNewExam: React.FC<ModalUpdateUserProps> = ({ open, onClose }) => {
             {isEmpty(examData.DurationMinutes) && (
               <p className="text-red-500 text-sm mt-1">
                 Thời gian làm bài không được để trống.
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label
+              htmlFor="StartTime"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              StartTime
+            </label>
+            <input
+              type="datetime-local"
+              id="StartTime"
+              name="StartTime"
+              value={examData.StartTime}
+              onChange={handleInputChange}
+              required
+              className={`mt-1 block w-full px-3 py-2 rounded-md text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 transition-colors duration-200 border
+    ${
+      isEmpty(examData.StartTime)
+        ? "border-red-500 focus:ring-red-500"
+        : "border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:focus:ring-blue-400"
+    }`}
+            />
+
+            {isEmpty(examData.StartTime) && (
+              <p className="text-red-500 text-sm mt-1">
+                Thời gian bắt đầu không được để trống.
               </p>
             )}
           </div>
