@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import "./index.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { setLoading, setUnLoading } from "./Redux/Reducer/loading.reducer";
+// import { setLoading, setUnLoading } from "./Redux/Reducer/loading.reducer";
 import AppRoutes from "./Routes/appRoutes";
 import { ToastContainer } from "react-toastify";
 import { RotatingTriangles } from "react-loader-spinner";
@@ -14,9 +14,9 @@ function App() {
   const user = useSelector((state: any) => state.user) || {};
   const isLoading =
     useSelector((state: any) => state.loading.isLoading) || false;
-  const token = localStorage.getItem("jwt");
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  // const token = localStorage.getItem("jwt");
+  // const dispatch = useDispatch();
+  // const navigate = useNavigate();
 
   // useEffect(() => {
   //   dispatch(setLoading());

@@ -11,5 +11,6 @@ export type ExamRequest = {
   Title: string;
   Description: string;
   DurationMinutes: number;
+  StartTime: string;
   Questions: Question[];
 };
