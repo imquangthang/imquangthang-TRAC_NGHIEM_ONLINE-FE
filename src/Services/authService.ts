@@ -22,10 +22,10 @@ const forgotPassword = (email: string) => {
   });
 };
 
-const resetPassword = (code: string, newPassword: string) => {
+const verifyOTP = (email: string, otp: string) => {
   return instance.post(
-    "/api/user/reset-password",
-    JSON.stringify({ token: code, newPassword: newPassword }),
+    "/api/user/verify-otp",
+    JSON.stringify({ otp: otp, email: email }),
     {
       headers: {
         "Content-Type": "application/json",
@@ -34,4 +34,16 @@ const resetPassword = (code: string, newPassword: string) => {
   );
 };
 
-export { login, register, forgotPassword, resetPassword };
+const resetPassword = (email: string, newPassword: string) => {
+  return instance.post(
+    "/api/user/reset-password",
+    JSON.stringify({ email: email, newPassword: newPassword }),
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+};
+
+export { login, register, forgotPassword, resetPassword, verifyOTP };
