@@ -21,6 +21,7 @@ const Questions: React.FC = () => {
     Title: "",
     Description: "",
     DurationMinutes: 0,
+    StartTime: "",
     Questions: [],
   };
   const [activeTab, setActiveTab] = useState("manual");
@@ -102,6 +103,7 @@ const Questions: React.FC = () => {
       return;
     }
 
+    examData.StartTime = new Date(examData.StartTime).toISOString();
     // Prepare exam data with all questions
     const updatedExamData: ExamRequest = {
       ...examData,
