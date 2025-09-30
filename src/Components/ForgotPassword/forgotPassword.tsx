@@ -1,37 +1,37 @@
 import { useState } from "react";
 import Logo from "../../Assets/Logo.png";
 import { toast } from "react-toastify";
-import { forgotPassword, resetPassword } from "../../Services/authService";
+import {
+  forgotPassword,
+  resetPassword,
+  verifyOTP,
+} from "../../Services/authService";
 import { useNavigate } from "react-router-dom";
 
-const EnterEmailPage = ({ setStep }: any) => {
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [otpMethod, setOtpMethod] = useState("email"); // mặc định là email
-
+const EnterEmailPage = ({ email, setEmail, setStep }: any) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (otpMethod === "email") {
-      if (!email) {
-        toast("Please enter your email.");
-        return;
-      }
-      // Gọi API gửi mã OTP
-      let response: any = await forgotPassword(email);
-      if (response && response.code === 200) {
-        toast("OTP sent successfully to your email.");
-        setStep(2); // chuyển sang bước nhập mã OTP
-      } else {
-        toast("Failed to send OTP. Please try again.");
-        return;
-      }
-    } else if (otpMethod === "phone") {
-      if (!phone) {
-        toast("Please enter your phone number.");
-        return;
-      }
-      setStep(2); // chuyển sang bước nhập mã OTP
+    if (!email) {
+      toast("Please enter your email.");
+      return;
+    }
+
+    if (!emailRegex.test(email)) {
+      toast("Email not valid. Please enter Email again.");
+      return;
+    }
+
+    console.log(email);
+
+    let response: any = await forgotPassword(email);
+    if (response && response.code === 200) {
+      toast("OTP sent successfully to your email.");
+      setStep(2);
+    } else {
+      toast("Failed to send OTP. Please try again.");
+      return;
     }
   };
 
@@ -67,69 +67,16 @@ const EnterEmailPage = ({ setStep }: any) => {
         {/* Form */}
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {/* Email or Phone input */}
-            {otpMethod === "email" ? (
-              <input
-                type="email"
-                name="email"
-                id="email"
-                autoComplete="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="block w-full border rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-              />
-            ) : (
-              <input
-                type="tel"
-                name="phone"
-                id="phone"
-                autoComplete="tel"
-                placeholder="Enter your phone number"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="block w-full border rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-              />
-            )}
-
-            {/* Radio chọn phương thức nhận OTP */}
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <input
-                  id="radio-email"
-                  name="otpMethod"
-                  type="radio"
-                  value="email"
-                  checked={otpMethod === "email"}
-                  onChange={(e) => setOtpMethod(e.target.value)}
-                  className="h-4 w-4 appearance-none rounded-full border border-gray-300 text-indigo-600 checked:bg-indigo-600 checked:border-transparent focus:ring-indigo-600"
-                />
-                <label
-                  htmlFor="radio-email"
-                  className="ml-2 text-sm text-gray-900"
-                >
-                  Receive OTP via Email
-                </label>
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  id="radio-phone"
-                  name="otpMethod"
-                  type="radio"
-                  value="phone"
-                  checked={otpMethod === "phone"}
-                  onChange={(e) => setOtpMethod(e.target.value)}
-                  className="h-4 w-4 appearance-none rounded-full border border-gray-300 text-indigo-600 checked:bg-indigo-600 checked:border-transparent focus:ring-indigo-600"
-                />
-                <label
-                  htmlFor="radio-phone"
-                  className="ml-2 text-sm text-gray-900"
-                >
-                  Receive OTP via Phone number
-                </label>
-              </div>
-            </div>
+            <input
+              type="email"
+              name="email"
+              id="email"
+              autoComplete="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="block w-full border rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+            />
 
             {/* Submit */}
             <button
@@ -145,12 +92,19 @@ const EnterEmailPage = ({ setStep }: any) => {
   );
 };
 
-const EnterCodePage = ({ setStep, code, setCode }: any) => {
-  const handleSubmit = (e: React.FormEvent) => {
+const EnterCodePage = ({ email, setStep, code, setCode }: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log(email);
 
-    console.log("Code entered:", code);
-
+    let response: any = await verifyOTP(email, code);
+    if (response && response.code === 200) {
+      toast("Verify OTP successfully");
+      setStep(3);
+    } else {
+      toast("Failed to verify OTP. Please try again.");
+      return;
+    }
     setStep(3); // chuyển sang bước reset password
   };
 
@@ -209,7 +163,7 @@ const EnterCodePage = ({ setStep, code, setCode }: any) => {
   );
 };
 
-const ResetPasswordPage = ({ code, navigate }: any) => {
+const ResetPasswordPage = ({ email, navigate }: any) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const handleSubmit = async (e: React.FormEvent) => {
@@ -226,7 +180,7 @@ const ResetPasswordPage = ({ code, navigate }: any) => {
 
     // Xử lý logic reset password ở đây
     try {
-      let response: any = await resetPassword(code, newPassword);
+      let response: any = await resetPassword(email, newPassword);
       if (response && response.code === 200) {
         toast("Password reset successfully!");
       } else toast("Failed to reset password. Please try again.");
@@ -304,17 +258,23 @@ const ResetPasswordPage = ({ code, navigate }: any) => {
 };
 
 const ForgotPassword = () => {
+  const [email, setEmail] = useState("");
   const [step, setStep] = useState(1); // useState phải đặt trong component
   const [code, setCode] = useState("");
   const navigate = useNavigate();
   return (
     <>
       {step === 1 ? (
-        <EnterEmailPage setStep={setStep} />
+        <EnterEmailPage email={email} setEmail={setEmail} setStep={setStep} />
       ) : step === 2 ? (
-        <EnterCodePage setStep={setStep} code={code} setCode={setCode} />
+        <EnterCodePage
+          email={email}
+          setStep={setStep}
+          code={code}
+          setCode={setCode}
+        />
       ) : (
-        <ResetPasswordPage code={code} navigate={navigate} />
+        <ResetPasswordPage email={email} navigate={navigate} />
       )}
     </>
   );
