@@ -1,7 +1,7 @@
 import Header from "../../Header/header";
 import { useEffect, useState } from "react";
 import ReactPaginate from "react-paginate";
-import { fetchAllExams } from "../../../Services/examService";
+import { fetchAllStudentExams } from "../../../Services/examService";
 import { Skeleton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
@@ -20,7 +20,7 @@ const StudentExams = () => {
 
   const fetchExams = async () => {
     setIsLoadingExam(true);
-    let response: any = await fetchAllExams(
+    let response: any = await fetchAllStudentExams(
       searchKeyword,
       currentPage,
       currentLimit

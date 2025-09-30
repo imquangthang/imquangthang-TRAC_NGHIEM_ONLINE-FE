@@ -42,6 +42,20 @@ const fetchAllExams = (
   });
 };
 
+const fetchAllStudentExams = (
+  Title: string,
+  CurrentPage: number,
+  PageSize: number
+) => {
+  return instance.get("/api/exam/student", {
+    params: {
+      Keyword: Title,
+      CurrentPage: CurrentPage,
+      PageSize: PageSize,
+    },
+  });
+};
+
 const getExamDetail = (id: number) => {
   return instance.get(`/api/exam/${id}`);
 };
@@ -123,4 +137,5 @@ export {
   deleteExam,
   submitExam,
   importFileQuestions,
+  fetchAllStudentExams,
 };
