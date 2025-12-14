@@ -1,5 +1,5 @@
 import Header from "../../Header/header";
-import GroupRole from "./Group_Role/GroupRoles";
+import GroupRole from "./GroupRole/GroupRoles";
 import Role from "./Role/Roles";
 
 const RoleManagement = () => {

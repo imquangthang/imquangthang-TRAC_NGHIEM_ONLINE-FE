@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import "./index.css";
-import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 // import { setLoading, setUnLoading } from "./Redux/Reducer/loading.reducer";
 import AppRoutes from "./Routes/appRoutes";
 import { ToastContainer } from "react-toastify";
