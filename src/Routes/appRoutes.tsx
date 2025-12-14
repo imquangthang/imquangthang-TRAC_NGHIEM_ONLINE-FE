@@ -19,12 +19,12 @@ const AppRoutes: React.FC<AppRoutesProps> = ({ user }) => (
   <Routes>
     {(() => {
       switch (user?.account?.Role) {
-        case "0":
-          return adminRoutes(adminLayout);
         case "1":
-          return teacherRoutes(teacherLayout, user);
+          return adminRoutes(adminLayout);
         case "2":
           return studentRoutes(studentLayout, user);
+        case "3":
+          return teacherRoutes(teacherLayout, user);
       }
     })()}
     <Route path="/login" element={<LogIn />} />

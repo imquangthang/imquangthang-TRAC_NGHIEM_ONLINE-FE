@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "react-toastify";
 
 // Lấy URL API từ biến môi trường
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -17,12 +18,11 @@ const handleAxiosError = (error: any) => {
 
   switch (status) {
     case 401:
-      console.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+      toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
       window.location.href = "/login";
       break;
     case 403:
-      console.error("Bạn không có quyền truy cập tài nguyên này.");
-      window.location.href = "/login";
+      toast.error("Bạn không có quyền truy cập tài nguyên này.");
       break;
     default:
       if (message === "Network Error") {

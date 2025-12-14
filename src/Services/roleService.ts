@@ -1,19 +1,23 @@
 import instance from "../Setup/axios.ts";
-import type { Role, RoleData } from "../Types/role.type.ts";
+import type {
+  assignPersToRolesPayload,
+  PermissionResponse,
+  RoleData,
+  RoleResponse,
+} from "../Types/role.type.ts";
 
-interface RoleResponse {
-  objects: Role[];
-  paging: any;
-}
-const fetchAllRoles = async (): Promise<Role[]> => {
-  const res = await instance.get<RoleResponse>("/api/role/role");
-  return res.objects;
+const fetchAllRoles = () => {
+  return instance.get<RoleResponse>("/api/role/role");
+};
+
+const fetchAllPermissions = () => {
+  return instance.get<PermissionResponse>("/api/role/all-permission");
 };
 
 const createOrUpdateRole = (roleData: RoleData) => {
   const formData = new FormData();
   formData.append("Id", roleData.id?.toString() ?? "0");
-  formData.append("Title", roleData.title)
+  formData.append("Name", roleData.name);
   formData.append("Description", roleData.description);
 
   return instance.post("/api/role", formData, {
@@ -23,13 +27,28 @@ const createOrUpdateRole = (roleData: RoleData) => {
   });
 };
 
-
 const createRoles = (roles: RoleData[]) => {
-  return instance.post("/api/role/role", roles); 
+  return instance.post("/api/role/role", roles);
 };
 
 const deleteRole = (id: number) => {
   return instance.delete(`/api/role/role/${id}`);
 };
 
-export { fetchAllRoles, createOrUpdateRole, createRoles, deleteRole };
+const fetchRolesByGroup = (groupId: number) => {
+  return instance.get<RoleResponse>(`/api/role/permission?roleId=${groupId}`);
+};
+
+const assignPersToRoles = (data: assignPersToRolesPayload) => {
+  return instance.post("/api/role/role-permission", data);
+};
+
+export {
+  fetchAllRoles,
+  createOrUpdateRole,
+  createRoles,
+  deleteRole,
+  fetchRolesByGroup,
+  fetchAllPermissions,
+  assignPersToRoles,
+};
