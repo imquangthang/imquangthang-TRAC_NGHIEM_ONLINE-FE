@@ -7,6 +7,7 @@ const addNewExam = (data: ExamRequest) => {
   formData.append("Title", data.Title);
   formData.append("Description", data.Description);
   formData.append("DurationMinutes", data.DurationMinutes.toString());
+  formData.append("StartTime", data.StartTime);
 
   data.Questions.forEach((q, i) => {
     formData.append(`Questions[${i}].Content`, q.Content);
@@ -42,6 +43,20 @@ const fetchAllExams = (
   });
 };
 
+const fetchAllStudentExams = (
+  Title: string,
+  CurrentPage: number,
+  PageSize: number
+) => {
+  return instance.get("/api/exam/student", {
+    params: {
+      Keyword: Title,
+      CurrentPage: CurrentPage,
+      PageSize: PageSize,
+    },
+  });
+};
+
 const getExamDetail = (id: number) => {
   return instance.get(`/api/exam/${id}`);
 };
@@ -53,6 +68,7 @@ const updateExamDetail = (data: ExamRequest) => {
   formData.append("Title", data.Title);
   formData.append("Description", data.Description);
   formData.append("DurationMinutes", data.DurationMinutes.toString());
+  formData.append("StartTime", data.StartTime);
 
   data.Questions?.forEach((q, i) => {
     formData.append(`Questions[${i}].Content`, q.Content);
@@ -115,6 +131,47 @@ const importFileQuestions = (data: ExamRequest, selectedFile: File) => {
   });
 };
 
+const fetchExamHistory = (
+  Title: string,
+  CurrentPage: number,
+  PageSize: number
+) => {
+  return instance.get("/api/exam/teacher/history", {
+    params: {
+      Keyword: Title,
+      CurrentPage: CurrentPage,
+      PageSize: PageSize,
+    },
+  });
+};
+
+const fetchExamHistoryDetail = (
+  examId: number,
+  CurrentPage: number,
+  PageSize: number
+) => {
+  return instance.get(`/api/exam/teacher/history/${examId}`, {
+    params: {
+      CurrentPage: CurrentPage,
+      PageSize: PageSize,
+    },
+  });
+};
+
+const fetchStudentExamHistory = (
+  Title: string,
+  CurrentPage: number,
+  PageSize: number
+) => {
+  return instance.get(`/api/exam/student/history`, {
+    params: {
+      Keyword: Title,
+      CurrentPage: CurrentPage,
+      PageSize: PageSize,
+    },
+  });
+};
+
 export {
   addNewExam,
   fetchAllExams,
@@ -123,4 +180,8 @@ export {
   deleteExam,
   submitExam,
   importFileQuestions,
+  fetchAllStudentExams,
+  fetchExamHistory,
+  fetchExamHistoryDetail,
+  fetchStudentExamHistory,
 };

@@ -7,7 +7,7 @@ import OngoingExams from "../Components/Teacher/Live Rankings/ongoingExams";
 import LiveRankings from "../Components/Teacher/Live Rankings/liveRankings";
 import ExamHistory from "../Components/Teacher/Exam History/examHistory";
 import DetailExamHistory from "../Components/Teacher/Exam History/detailExamHistory";
-import DetailExamResult from "../Components/Teacher/Exam History/detailExamResult";
+// import DetailExamResult from "../Components/Teacher/Exam History/detailExamResult";
 import TeacherExams from "../Components/Teacher/Exams/exams";
 
 const teacherRoutes = (Layouts: () => React.JSX.Element, _user: userState) => {
@@ -21,10 +21,10 @@ const teacherRoutes = (Layouts: () => React.JSX.Element, _user: userState) => {
       <Route path="live-rankings/:examId" element={<LiveRankings />} />
       <Route path="exam-history" element={<ExamHistory />} />
       <Route path="exam-history/:examId" element={<DetailExamHistory />} />
-      <Route
+      {/* <Route
         path="exam-history/:examId/student/:studentId"
         element={<DetailExamResult />}
-      />
+      /> */}
     </Route>
   );
 };

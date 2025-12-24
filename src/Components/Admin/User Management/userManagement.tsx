@@ -12,7 +12,7 @@ const UserManagement = () => {
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [listUsers, setListUsers] = useState<userGetByAdmin[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [currentLimit, _setCurrentLimit] = useState(3);
+  const [currentLimit, _setCurrentLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);

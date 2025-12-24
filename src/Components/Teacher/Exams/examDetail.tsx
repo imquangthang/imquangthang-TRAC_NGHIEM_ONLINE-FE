@@ -28,6 +28,7 @@ const ExamDetail = () => {
     Title: "",
     Description: "",
     DurationMinutes: 0,
+    StartTime: "",
     Questions: [],
   });
 
@@ -37,6 +38,7 @@ const ExamDetail = () => {
     Title: "",
     Description: "",
     DurationMinutes: 0,
+    StartTime: "",
     Questions: [],
   });
 
@@ -95,6 +97,7 @@ const ExamDetail = () => {
           Title: response.title,
           Description: response.description,
           DurationMinutes: response.durationMinutes,
+          StartTime: new Date(response.startTime).toString(),
           Questions: (response.questions || []).map((q: any) => ({
             Content: q.content,
             Explain: q.explain,
@@ -129,7 +132,8 @@ const ExamDetail = () => {
     if (
       !currentExam.Title ||
       !currentExam.Description ||
-      !currentExam.DurationMinutes
+      !currentExam.DurationMinutes ||
+      !currentExam.StartTime
     )
       return;
     // Gọi API hoặc cập nhật state toàn cục
@@ -242,8 +246,9 @@ const ExamDetail = () => {
   // Save all changes
   const handleSaveAllChanges = async () => {
     if (!hasUnsavedChanges) return;
-
+    currentExam.StartTime = new Date(currentExam.StartTime).toISOString();
     setIsSaving(true);
+
     try {
       const response: any = await updateExamDetail(currentExam);
       if (response && response.code === 200) {
@@ -283,6 +288,23 @@ const ExamDetail = () => {
 
     handleQuestionChange(questionIndex, questionForm);
     setIsEditingQuestion(null);
+  };
+
+  const formatDateTimeLocal = (dateObject: Date) => {
+    if (!dateObject) return "";
+
+    // Đảm bảo dateObject là một Date hợp lệ
+    const date = new Date(dateObject);
+
+    // Lấy các phần tử ngày/giờ và thêm số 0 ở đầu nếu cần
+    const yyyy = date.getFullYear();
+    const MM = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    const hh = String(date.getHours()).padStart(2, "0");
+    const mm = String(date.getMinutes()).padStart(2, "0");
+
+    // Trả về định dạng YYYY-MM-DDThh:mm
+    return `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
   };
 
   return (
@@ -436,8 +458,8 @@ const ExamDetail = () => {
               </div>
 
               {/* Sidebar */}
-              <div className="w-full md:w-1/3 p-4 border rounded-lg shadow-sm bg-white ">
-                <div className="fixed">
+              <div className="w-full md:w-1/3">
+                <div className="fixed p-4 border rounded-lg shadow-sm bg-white">
                   <button
                     onClick={() => setIsEditingExam(true)}
                     className="mb-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-500"
@@ -456,6 +478,16 @@ const ExamDetail = () => {
                   <p>
                     <strong>Duration:</strong> {currentExam?.DurationMinutes}{" "}
                     minutes
+                  </p>
+                  <p>
+                    <strong>Start Time:</strong>{" "}
+                    <input
+                      disabled
+                      type="datetime-local"
+                      value={formatDateTimeLocal(
+                        new Date(currentExam.StartTime)
+                      )}
+                    />
                   </p>
 
                   <div className="p-4 bg-gray-50 dark:bg-gray-900 shadow-sm border rounded border-gray-200 dark:border-gray-700 mt-2">
@@ -582,6 +614,39 @@ const ExamDetail = () => {
                       {!currentExam.DurationMinutes && (
                         <p className="text-red-500 text-sm mt-1">
                           Thời gian làm bài không được để trống.
+                        </p>
+                      )}
+                    </div>
+
+                    {/* StartTime */}
+                    <div>
+                      <label
+                        htmlFor="StartTime"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                      >
+                        StartTime
+                      </label>
+                      <input
+                        type="datetime-local"
+                        id="StartTime"
+                        name="StartTime"
+                        value={formatDateTimeLocal(
+                          new Date(currentExam.StartTime)
+                        )}
+                        onChange={(e) =>
+                          handleExamChange("StartTime", e.target.value)
+                        }
+                        required
+                        min={1}
+                        className={`mt-1 block w-full px-3 py-2 rounded-md text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 transition-colors duration-200 border ${
+                          !currentExam.StartTime
+                            ? "border-red-500 focus:ring-red-500"
+                            : "border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:focus:ring-blue-400"
+                        }`}
+                      />
+                      {!currentExam.StartTime && (
+                        <p className="text-red-500 text-sm mt-1">
+                          Thời gian bắt đầu không được để trống.
                         </p>
                       )}
                     </div>

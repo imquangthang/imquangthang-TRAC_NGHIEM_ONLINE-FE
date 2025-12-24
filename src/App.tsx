@@ -7,7 +7,6 @@ import AppRoutes from "./Routes/appRoutes";
 import { ToastContainer } from "react-toastify";
 import { RotatingTriangles } from "react-loader-spinner";
 import { initDropdowns } from "flowbite";
-// import type { userState } from "./Redux/Types/user.type";
 
 function App() {
   const location = useLocation();
@@ -22,23 +21,22 @@ function App() {
     dispatch(setLoading());
     if (!token) {
       navigate("/login");
+    } else {
+      switch (user?.account?.Role) {
+        case "1":
+          navigate("/admin");
+          break;
+        case "2":
+          navigate("/student");
+          break;
+        case "3":
+          navigate("/teacher");
+          break;
+        default:
+          navigate("/");
+          break;
+      }
     }
-    // else {
-    //   switch (user?.account?.Role) {
-    //     case "0":
-    //       navigate("/admin");
-    //       break;
-    //     case "1":
-    //       navigate("/teacher");
-    //       break;
-    //     case "2":
-    //       navigate("/student");
-    //       break;
-    //     default:
-    //       navigate("/");
-    //       break;
-    //   }
-    // }
     dispatch(setUnLoading());
   }, [token]);
 

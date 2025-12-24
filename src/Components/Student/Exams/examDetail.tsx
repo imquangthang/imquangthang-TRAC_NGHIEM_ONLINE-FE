@@ -59,6 +59,7 @@ const ExamDetail = ({ userId }: { userId: string }) => {
           Title: response.title,
           Description: response.description,
           DurationMinutes: response.durationMinutes,
+          StartTime: response.startTime || new Date().toISOString(),
           Questions: (response.questions || []).map((q: any) => ({
             Id: q.id,
             Content: q.content,
@@ -178,12 +179,18 @@ const ExamDetail = ({ userId }: { userId: string }) => {
   const handleAnswerSelect = (questionId: number, answerId: number) => {
     setSelectedAnswers((prev) => {
       const newAnswers = { ...prev, [questionId]: answerId };
+
+      // Cập nhật REF ngay lập tức để đồng bộ với handleSubmit
+      selectedAnswersRef.current = newAnswers;
+
+      // Đẩy lên Firebase để LiveRankings cập nhật Progress Bar ngay lập tức
       saveExamState({
         selectedAnswers: newAnswers,
-        flaggedQuestions,
+        flaggedQuestions, // Giữ nguyên các flag
         startTime,
-        submitted,
+        submitted: false,
       });
+
       return newAnswers;
     });
   };
@@ -387,8 +394,8 @@ const ExamDetail = ({ userId }: { userId: string }) => {
             </div>
             {exam && (
               <>
-                <div className="w-full md:w-1/3 p-4 border rounded-lg shadow-sm bg-white">
-                  <div className="fixed">
+                <div className="w-full md:w-1/3">
+                  <div className="fixed p-4 border rounded-lg shadow-sm bg-white">
                     <p>
                       <strong>Title:</strong> {exam.Title}
                     </p>

@@ -10,7 +10,7 @@ import { getExamDetail } from "../../../Services/examService";
 const LiveRankings = () => {
   const { examId } = useParams<{ examId: string }>();
   const [examDetail, setExamDetail] = useState<ExamRequest | null>(null);
-  const [totalQuestions, setTotalQuestions] = useState(0);
+  const [_totalQuestions, setTotalQuestions] = useState(0);
   const [students, setStudents] = useState<Student[]>([]);
   const [activeStudents, setActiveStudents] = useState(0);
   const [elapsedTimes, setElapsedTimes] = useState<{
@@ -30,6 +30,7 @@ const LiveRankings = () => {
           Title: response.title,
           Description: response.description,
           DurationMinutes: response.durationMinutes,
+          StartTime: response.startTime || new Date().toISOString(),
           Questions: (response.questions || []).map((q: any) => ({
             id: q.id,
             content: q.content,
@@ -56,7 +57,7 @@ const LiveRankings = () => {
   }, [loadExamData]);
 
   useEffect(() => {
-    if (!examId || !examDetail || totalQuestions === 0) return;
+    if (!examId || !examDetail) return;
 
     const studentsRef = ref(db, `exams/${examId}/students`);
     const unsubscribeStudents = onValue(studentsRef, async (snapshot) => {
@@ -64,76 +65,54 @@ const LiveRankings = () => {
       if (!data) {
         setStudents([]);
         setActiveStudents(0);
-        setElapsedTimes({});
         return;
       }
 
-      // Dùng Promise.all để xử lý bất đồng bộ đúng cách
+      // Chuyển object Firebase thành mảng và xử lý tên
+      const studentEntries = Object.entries(data);
       const studentList: Student[] = await Promise.all(
-        Object.entries(data).map(
-          async ([userId, studentData]: [string, any]) => {
-            let name = "Unknown";
+        studentEntries.map(async ([userId, studentData]: [string, any]) => {
+          // Kiểm tra xem đã có tên trong danh sách hiện tại chưa để đỡ phải fetch lại
+          let name =
+            students.find((s) => s.userId === userId)?.name || "Unknown";
 
+          if (name === "Unknown") {
             try {
               const nameSnapshot = await get(ref(db, `users/${userId}/name`));
-              if (nameSnapshot.exists()) {
-                name = nameSnapshot.val().toString();
-              }
-            } catch (error) {
-              console.error(`Failed to fetch name for user ${userId}:`, error);
+              if (nameSnapshot.exists()) name = nameSnapshot.val().toString();
+            } catch (e) {
+              console.error(e);
             }
-
-            const answered = studentData.selectedAnswers
-              ? Object.keys(studentData.selectedAnswers).length
-              : 0;
-
-            return {
-              userId,
-              name,
-              answered,
-              total: totalQuestions,
-              startTime: studentData.startTime || Date.now(),
-              endTime: studentData.endTime,
-              submitted: studentData.submitted || false,
-            };
           }
-        )
+
+          // Đếm số câu dựa trên key của selectedAnswers (phải khớp với ExamDetail)
+          const answered = studentData.selectedAnswers
+            ? Object.keys(studentData.selectedAnswers).length
+            : 0;
+
+          return {
+            userId,
+            name,
+            answered,
+            total: examDetail.Questions.length, // Lấy trực tiếp từ detail
+            startTime: studentData.startTime,
+            endTime: studentData.endTime,
+            submitted: studentData.submitted || false,
+          };
+        })
       );
 
-      // Sắp xếp
-      studentList.sort((a, b) => {
-        if (a.answered !== b.answered) {
-          return b.answered - a.answered;
-        }
-        return a.startTime - b.startTime;
-      });
-
-      // Cập nhật thời gian làm bài
-      setElapsedTimes((prevElapsedTimes) => {
-        const updatedTimes = { ...prevElapsedTimes };
-        studentList.forEach((student) => {
-          if (!student.submitted) {
-            updatedTimes[student.userId] = formatElapsedTime(student.startTime);
-          } else if (
-            student.submitted &&
-            student.endTime &&
-            !updatedTimes[student.userId]
-          ) {
-            updatedTimes[student.userId] = formatElapsedTime(
-              student.startTime,
-              student.endTime
-            );
-          }
-        });
-        return updatedTimes;
-      });
+      // Sắp xếp: Ai làm nhiều hơn lên trên, bằng nhau thì ai làm trước lên trên
+      studentList.sort(
+        (a, b) => b.answered - a.answered || a.startTime - b.startTime
+      );
 
       setStudents(studentList);
       setActiveStudents(studentList.filter((s) => !s.submitted).length);
     });
 
     return () => unsubscribeStudents();
-  }, [examId, examDetail, totalQuestions]);
+  }, [examId, examDetail]);
 
   // Format elapsed time
   const formatElapsedTime = (startTime: number, endTime?: number) => {
