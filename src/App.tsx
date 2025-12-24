@@ -1,45 +1,44 @@
 import { useEffect } from "react";
 import "./index.css";
-import { useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
-// import { setLoading, setUnLoading } from "./Redux/Reducer/loading.reducer";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
+import { setLoading, setUnLoading } from "./Redux/Reducer/loading.reducer";
 import AppRoutes from "./Routes/appRoutes";
 import { ToastContainer } from "react-toastify";
 import { RotatingTriangles } from "react-loader-spinner";
 import { initDropdowns } from "flowbite";
-// import type { userState } from "./Redux/Types/user.type";
 
 function App() {
   const location = useLocation();
   const user = useSelector((state: any) => state.user) || {};
   const isLoading =
     useSelector((state: any) => state.loading.isLoading) || false;
-  // const token = localStorage.getItem("jwt");
-  // const dispatch = useDispatch();
-  // const navigate = useNavigate();
+  const token = localStorage.getItem("jwt");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   dispatch(setLoading());
-  //   if (!token) {
-  //     navigate("/login");
-  //   } else {
-  //     switch (user?.account?.Role) {
-  //       case "0":
-  //         navigate("/admin");
-  //         break;
-  //       case "1":
-  //         navigate("/teacher");
-  //         break;
-  //       case "2":
-  //         navigate("/student");
-  //         break;
-  //       default:
-  //         navigate("/");
-  //         break;
-  //     }
-  //   }
-  //   dispatch(setUnLoading());
-  // }, [token]);
+  useEffect(() => {
+    dispatch(setLoading());
+    if (!token) {
+      navigate("/login");
+    } else {
+      switch (user?.account?.Role) {
+        case "1":
+          navigate("/admin");
+          break;
+        case "2":
+          navigate("/student");
+          break;
+        case "3":
+          navigate("/teacher");
+          break;
+        default:
+          navigate("/");
+          break;
+      }
+    }
+    dispatch(setUnLoading());
+  }, [token]);
 
   useEffect(() => {
     initDropdowns();

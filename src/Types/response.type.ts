@@ -4,3 +4,7 @@ export type ResponseType<T = any> = {
   listError: T[];
   data: T;
 };
+
+export type ChartDataResponse = {
+  dailyExamCounts: Record<string, number>;
+};

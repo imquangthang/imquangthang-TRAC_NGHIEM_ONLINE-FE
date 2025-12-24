@@ -28,9 +28,22 @@ const OngoingExams = () => {
       currentLimit
     );
 
-    if (response) {
-      setListExams(response.objects);
-      setTotalPages(response.paging.totalPages);
+    if (response && response.objects) {
+      const now = new Date();
+      // Lọc các bài thi đang diễn ra
+      const filteredExams = response.objects.filter((exam: any) => {
+        const startTime = new Date(exam.startTime);
+        const endTime = new Date(
+          startTime.getTime() + exam.durationMinutes * 60000
+        );
+
+        // Điều kiện: Bây giờ nằm trong khoảng Start và End
+        return now >= startTime && now <= endTime;
+      });
+
+      setListExams(filteredExams);
+
+      setTotalPages(Math.ceil(response.totalRecords / currentLimit) || 1);
     }
     setIsLoadingExam(false);
   };
