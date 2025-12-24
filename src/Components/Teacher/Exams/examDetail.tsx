@@ -458,8 +458,8 @@ const ExamDetail = () => {
               </div>
 
               {/* Sidebar */}
-              <div className="w-full md:w-1/3 p-4 border rounded-lg shadow-sm bg-white ">
-                <div className="fixed">
+              <div className="w-full md:w-1/3">
+                <div className="fixed p-4 border rounded-lg shadow-sm bg-white">
                   <button
                     onClick={() => setIsEditingExam(true)}
                     className="mb-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-500"
