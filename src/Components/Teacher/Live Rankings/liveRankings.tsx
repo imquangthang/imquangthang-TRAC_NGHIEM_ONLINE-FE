@@ -10,7 +10,7 @@ import { getExamDetail } from "../../../Services/examService";
 const LiveRankings = () => {
   const { examId } = useParams<{ examId: string }>();
   const [examDetail, setExamDetail] = useState<ExamRequest | null>(null);
-  const [totalQuestions, setTotalQuestions] = useState(0);
+  const [_totalQuestions, setTotalQuestions] = useState(0);
   const [students, setStudents] = useState<Student[]>([]);
   const [activeStudents, setActiveStudents] = useState(0);
   const [elapsedTimes, setElapsedTimes] = useState<{

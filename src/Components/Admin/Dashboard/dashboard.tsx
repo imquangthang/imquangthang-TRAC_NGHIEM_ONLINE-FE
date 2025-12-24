@@ -30,7 +30,6 @@ const Dashboard: React.FC = () => {
     total_ongoing_exam_today: "0",
   });
 
-  const formatToISO = (date: Date) => date.toISOString();
   const [dateRange, setDateRange] = useState({
     start: new Date(new Date().setDate(new Date().getDate() - 7))
       .toISOString()
@@ -38,7 +37,7 @@ const Dashboard: React.FC = () => {
     end: new Date().toISOString().split("T")[0], // Hôm nay
   });
 
-  const [chartData, setChartData] = useState<ChartDataResponse | null>(null);
+  const [_chartData, setChartData] = useState<ChartDataResponse | null>(null);
   const chartRef = useRef<Chart | null>(null);
 
   const fetchDashboardData = async () => {

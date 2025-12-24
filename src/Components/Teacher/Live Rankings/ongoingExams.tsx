@@ -13,7 +13,7 @@ const OngoingExams = () => {
   const [currentLimit, _setCurrentLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [listExams, setListExams] = useState<ExamRequest[]>();
-  const [isLoadingExam, setIsLoadingExam] = useState(true);
+  const [_isLoadingExam, setIsLoadingExam] = useState(true);
   const [searchKeyword, setSearchKeyword] = useState("");
 
   const handlePageClick = async (event: { selected: number }) => {

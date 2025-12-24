@@ -131,6 +131,47 @@ const importFileQuestions = (data: ExamRequest, selectedFile: File) => {
   });
 };
 
+const fetchExamHistory = (
+  Title: string,
+  CurrentPage: number,
+  PageSize: number
+) => {
+  return instance.get("/api/exam/teacher/history", {
+    params: {
+      Keyword: Title,
+      CurrentPage: CurrentPage,
+      PageSize: PageSize,
+    },
+  });
+};
+
+const fetchExamHistoryDetail = (
+  examId: number,
+  CurrentPage: number,
+  PageSize: number
+) => {
+  return instance.get(`/api/exam/teacher/history/${examId}`, {
+    params: {
+      CurrentPage: CurrentPage,
+      PageSize: PageSize,
+    },
+  });
+};
+
+const fetchStudentExamHistory = (
+  Title: string,
+  CurrentPage: number,
+  PageSize: number
+) => {
+  return instance.get(`/api/exam/student/history`, {
+    params: {
+      Keyword: Title,
+      CurrentPage: CurrentPage,
+      PageSize: PageSize,
+    },
+  });
+};
+
 export {
   addNewExam,
   fetchAllExams,
@@ -140,4 +181,7 @@ export {
   submitExam,
   importFileQuestions,
   fetchAllStudentExams,
+  fetchExamHistory,
+  fetchExamHistoryDetail,
+  fetchStudentExamHistory,
 };
