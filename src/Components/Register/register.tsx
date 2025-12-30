@@ -13,7 +13,7 @@ import { register } from "../../Services/authService.ts";
 const Register = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const role = queryParams.get("role"); // "teacher" hoặc "student"
+  const role = queryParams.get("role");
 
   const dispatch = useDispatch();
   const user = useSelector((state: any) => state.user) || {};

@@ -251,23 +251,23 @@ const LogIn = () => {
             </p> */}
             <p className="mt-5 text-center text-sm/6 text-gray-500">
               Are you a Teacher?
-              <a
-                href="/register?role=teacher"
+              <Link
+                to="/register?role=teacher"
                 className="font-semibold text-indigo-600 hover:text-indigo-500"
               >
                 {" "}
                 Register now
-              </a>
+              </Link>
             </p>
             <p className="text-center text-sm/6 text-gray-500">
               Are you a Student?
-              <a
-                href="/register?role=student"
+              <Link
+                to="/register?role=student"
                 className="font-semibold text-indigo-600 hover:text-indigo-500"
               >
                 {" "}
                 Register now
-              </a>
+              </Link>
             </p>
 
             <div className="mt-2 flex items-center justify-center">

@@ -1,5 +1,22 @@
 import axios from "axios";
 import { toast } from "react-toastify";
+import { setLoading, setUnLoading } from "../Redux/Reducer/loading.reducer";
+import { useDispatch } from "react-redux";
+
+const dispatch = useDispatch();
+const handleLogout = async () => {
+  try {
+    dispatch(setLoading());
+    // Clear localStorage and Redux
+    localStorage.removeItem("jwt");
+    localStorage.removeItem("user");
+    toast.success("Đăng xuất thành công!");
+  } catch (err: any) {
+    console.error(`Lỗi khi đăng xuất và xóa tài khoản: ${err.message}`);
+  } finally {
+    dispatch(setUnLoading());
+  }
+};
 
 // Lấy URL API từ biến môi trường
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -19,7 +36,7 @@ const handleAxiosError = (error: any) => {
   switch (status) {
     case 401:
       toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
-      window.location.href = "/login";
+      handleLogout();
       break;
     case 403:
       toast.error("Bạn không có quyền truy cập tài nguyên này.");
@@ -27,7 +44,7 @@ const handleAxiosError = (error: any) => {
     default:
       if (message === "Network Error") {
         console.error(
-          "🌐 Không thể kết nối tới máy chủ. Kiểm tra mạng hoặc CORS."
+          "Không thể kết nối tới máy chủ. Kiểm tra mạng hoặc CORS."
         );
       } else if (error.code === "ECONNABORTED") {
         console.error("Hết thời gian kết nối tới máy chủ.");

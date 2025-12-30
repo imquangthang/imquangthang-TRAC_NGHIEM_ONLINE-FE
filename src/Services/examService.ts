@@ -119,6 +119,7 @@ const importFileQuestions = (data: ExamRequest, selectedFile: File) => {
   formData.append("Title", data.Title);
   formData.append("Description", data.Description);
   formData.append("DurationMinutes", data.DurationMinutes.toString());
+  formData.append("StartTime", data.StartTime);
 
   // Thêm file Excel
   formData.append("Questions", selectedFile);
