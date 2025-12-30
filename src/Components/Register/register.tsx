@@ -8,7 +8,10 @@ import {
   setUnLoading,
 } from "../../Redux/Reducer/loading.reducer.ts";
 import { useDispatch, useSelector } from "react-redux";
-import { register } from "../../Services/authService.ts";
+import {
+  registerStudent,
+  registerTeacher,
+} from "../../Services/authService.ts";
 
 const Register = () => {
   const location = useLocation();
@@ -52,11 +55,19 @@ const Register = () => {
     if (check === true) {
       try {
         dispatch(setLoading());
-        let response: any = await register({
-          Email: email,
-          Username: username,
-          Password: password,
-        });
+        let response: any =
+          role === "teacher"
+            ? await registerTeacher({
+                Email: email,
+                Username: username,
+                Password: password,
+              })
+            : await registerStudent({
+                Email: email,
+                Username: username,
+                Password: password,
+              });
+
         if (response) {
           if (+response.code === 200) {
             toast.success("Register successfully");
