@@ -38,6 +38,19 @@ const StudentExams = () => {
     console.log("Giá trị tìm kiếm từ Header:", value);
   };
 
+  const stateExams = (startTime: string, duration: number): number => {
+    const start = new Date(startTime);
+    const end = new Date(start.getTime() + duration * 60000);
+    const now = new Date();
+    if (now < start) {
+      return 0;
+    } else if (now >= start && now <= end) {
+      return 1;
+    } else {
+      return 2;
+    }
+  };
+
   useEffect(() => {
     fetchExams();
   }, [currentPage, searchKeyword]);
@@ -207,14 +220,41 @@ const StudentExams = () => {
                                     {exam.createdByName}
                                   </td>
                                   <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
-                                    <button
-                                      className="mt-4 px-2 bg-blue-600 text-white py-2 rounded hover:bg-blue-500"
-                                      onClick={() => {
-                                        navigate(`/student/exam/${exam.id}`);
-                                      }}
-                                    >
-                                      Làm Bài
-                                    </button>
+                                    <>
+                                      {stateExams(
+                                        exam.startTime,
+                                        exam.durationMinutes
+                                      ) === 0 ? (
+                                        <button className="mt-4 bg-gray-400 dark:bg-gray-600 text-white px-4 py-2 rounded cursor-not-allowed">
+                                          Exam Ended
+                                        </button>
+                                      ) : (
+                                        <>
+                                          {stateExams(
+                                            exam.startTime,
+                                            exam.durationMinutes
+                                          ) === 1 ? (
+                                            <button
+                                              className="mt-4 bg-green-400 dark:bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 dark:hover:bg-green-700"
+                                              onClick={() =>
+                                                navigate(
+                                                  `/student/exam/${exam.id}`
+                                                )
+                                              }
+                                            >
+                                              Start Exam
+                                            </button>
+                                          ) : (
+                                            <button
+                                              className="mt-4 bg-gray-400 dark:bg-gray-600 text-white px-4 py-2 rounded cursor-not-allowed"
+                                              disabled
+                                            >
+                                              Exam Ended
+                                            </button>
+                                          )}
+                                        </>
+                                      )}
+                                    </>
                                   </td>
                                 </tr>
                               ))}

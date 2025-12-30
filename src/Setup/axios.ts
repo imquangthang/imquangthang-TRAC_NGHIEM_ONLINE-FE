@@ -1,20 +1,13 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-import { setLoading, setUnLoading } from "../Redux/Reducer/loading.reducer";
-import { useDispatch } from "react-redux";
 
-const dispatch = useDispatch();
 const handleLogout = async () => {
   try {
-    dispatch(setLoading());
-    // Clear localStorage and Redux
     localStorage.removeItem("jwt");
     localStorage.removeItem("user");
     toast.success("Đăng xuất thành công!");
   } catch (err: any) {
     console.error(`Lỗi khi đăng xuất và xóa tài khoản: ${err.message}`);
-  } finally {
-    dispatch(setUnLoading());
   }
 };
 

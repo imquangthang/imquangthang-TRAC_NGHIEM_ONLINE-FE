@@ -14,6 +14,12 @@ const ModalDelUser: React.FC<ModalUpdateUserProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!idUser) {
+      toast.error("User ID is missing");
+      onClose();
+      return;
+    }
+
     let response: any = await deleteUser(idUser);
     if (response && response.code === 200) {
       toast("User deleted successfully");
