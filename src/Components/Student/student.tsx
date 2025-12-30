@@ -49,6 +49,20 @@ const Student: React.FC = () => {
   const openModal = () => {
     setOpenModalAddNewExam(true);
   };
+
+  const stateExams = (startTime: string, duration: number): number => {
+    const start = new Date(startTime);
+    const end = new Date(start.getTime() + duration * 60000);
+    const now = new Date();
+    if (now < start) {
+      return 0;
+    } else if (now >= start && now <= end) {
+      return 1;
+    } else {
+      return 2;
+    }
+  };
+
   return (
     <>
       <Header onSearch={handleSearch} />
@@ -158,14 +172,39 @@ const Student: React.FC = () => {
                               <b>Created_by:</b> {exam.createdByName}
                             </p>
                             <div className="flex justify-center">
-                              <button
-                                className="mt-4 bg-blue-400 dark:bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 dark:hover:bg-blue-700"
-                                onClick={() =>
-                                  navigate(`/student/exam/${exam.id}`)
-                                }
-                              >
-                                Làm bài
-                              </button>
+                              <>
+                                {stateExams(
+                                  exam.startTime,
+                                  exam.durationMinutes
+                                ) === 0 ? (
+                                  <button className="mt-4 bg-gray-400 dark:bg-gray-600 text-white px-4 py-2 rounded cursor-not-allowed">
+                                    Exam Ended
+                                  </button>
+                                ) : (
+                                  <>
+                                    {stateExams(
+                                      exam.startTime,
+                                      exam.durationMinutes
+                                    ) === 1 ? (
+                                      <button
+                                        className="mt-4 bg-green-400 dark:bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 dark:hover:bg-green-700"
+                                        onClick={() =>
+                                          navigate(`/student/exam/${exam.id}`)
+                                        }
+                                      >
+                                        Start Exam
+                                      </button>
+                                    ) : (
+                                      <button
+                                        className="mt-4 bg-gray-400 dark:bg-gray-600 text-white px-4 py-2 rounded cursor-not-allowed"
+                                        disabled
+                                      >
+                                        Exam Ended
+                                      </button>
+                                    )}
+                                  </>
+                                )}
+                              </>
                             </div>
                           </div>
                         ))}
@@ -192,14 +231,39 @@ const Student: React.FC = () => {
                               <b>Created_by:</b> {exam.createdByName}
                             </p>
                             <div className="flex justify-center">
-                              <button
-                                className="mt-4 bg-blue-400 dark:bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 dark:hover:bg-blue-700"
-                                onClick={() =>
-                                  navigate(`/teacher/exams/${exam.id}`)
-                                }
-                              >
-                                View Details
-                              </button>
+                              <>
+                                {stateExams(
+                                  exam.startTime,
+                                  exam.durationMinutes
+                                ) === 0 ? (
+                                  <button className="mt-4 bg-gray-400 dark:bg-gray-600 text-white px-4 py-2 rounded cursor-not-allowed">
+                                    Exam Ended
+                                  </button>
+                                ) : (
+                                  <>
+                                    {stateExams(
+                                      exam.startTime,
+                                      exam.durationMinutes
+                                    ) === 1 ? (
+                                      <button
+                                        className="mt-4 bg-green-400 dark:bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 dark:hover:bg-green-700"
+                                        onClick={() =>
+                                          navigate(`/student/exam/${exam.id}`)
+                                        }
+                                      >
+                                        Start Exam
+                                      </button>
+                                    ) : (
+                                      <button
+                                        className="mt-4 bg-gray-400 dark:bg-gray-600 text-white px-4 py-2 rounded cursor-not-allowed"
+                                        disabled
+                                      >
+                                        Exam Ended
+                                      </button>
+                                    )}
+                                  </>
+                                )}
+                              </>
                             </div>
                           </div>
                         ))}
