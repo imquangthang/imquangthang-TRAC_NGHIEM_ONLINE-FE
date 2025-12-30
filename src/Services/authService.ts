@@ -5,13 +5,20 @@ const login = (username: string, password: string) => {
   return instance.post("/api/user/login", { username, password });
 };
 
-// Gọi API đăng ký
-const register = (data: RegisterRequest) => {
+const registerStudent = (data: RegisterRequest) => {
   const formData = new FormData();
   formData.append("Email", data.Email);
   formData.append("Username", data.Username);
   formData.append("Password", data.Password);
-  return instance.post("/api/user/register", formData);
+  return instance.post("/api/user/register/student", formData);
+};
+
+const registerTeacher = (data: RegisterRequest) => {
+  const formData = new FormData();
+  formData.append("Email", data.Email);
+  formData.append("Username", data.Username);
+  formData.append("Password", data.Password);
+  return instance.post("/api/user/register/teacher", formData);
 };
 
 const forgotPassword = (email: string) => {
@@ -46,4 +53,11 @@ const resetPassword = (email: string, newPassword: string) => {
   );
 };
 
-export { login, register, forgotPassword, resetPassword, verifyOTP };
+export {
+  login,
+  registerStudent,
+  registerTeacher,
+  forgotPassword,
+  resetPassword,
+  verifyOTP,
+};
