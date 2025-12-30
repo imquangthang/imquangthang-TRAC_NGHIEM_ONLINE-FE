@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ExamRequest } from "../../../Types/request.type";
 import Header from "../../Header/header";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -160,6 +160,10 @@ const Questions: React.FC = () => {
     dispatch(setUnLoading());
   };
 
+  useEffect(() => {
+    console.log(examData);
+  }, []);
+
   return (
     <>
       <Header />
@@ -320,7 +324,7 @@ const Questions: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Select Excel File (.XLSX, .XLS){" "}
                     <a
-                      href="/src/assets/template.docx"
+                      href="/src/assets/template.xlsx"
                       className="text-blue-500 hover:underline"
                     >
                       (Download Template)
