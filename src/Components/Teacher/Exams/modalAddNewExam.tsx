@@ -17,10 +17,26 @@ const ModalAddNewExam: React.FC<ModalUpdateUserProps> = ({ open, onClose }) => {
   });
   const navigate = useNavigate();
 
+  const getLocalISOString = (): string => {
+    const now = new Date();
+    const offset = now.getTimezoneOffset() * 60000;
+    return new Date(now.getTime() - offset).toISOString().slice(0, 16);
+  };
+
+  const minDateTime = getLocalISOString();
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
+
+    if (name === "StartTime") {
+      if (value && value < minDateTime) {
+        alert("Thời gian bắt đầu không được ở trong quá khứ!");
+        setExamData((prev) => ({ ...prev, [name]: minDateTime }));
+        return;
+      }
+    }
+
     setExamData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -157,6 +173,7 @@ const ModalAddNewExam: React.FC<ModalUpdateUserProps> = ({ open, onClose }) => {
               type="datetime-local"
               id="StartTime"
               name="StartTime"
+              min={minDateTime}
               value={examData.StartTime}
               onChange={handleInputChange}
               required
