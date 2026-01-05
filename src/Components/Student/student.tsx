@@ -6,7 +6,7 @@ import ModalAddNewExam from "../Teacher/Exams/modalAddNewExam";
 import ReactPaginate from "react-paginate";
 import { fetchAllStudentExams } from "../../Services/examService";
 import { Skeleton } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Student: React.FC = () => {
   const navigate = useNavigate();
@@ -178,7 +178,7 @@ const Student: React.FC = () => {
                                   exam.durationMinutes
                                 ) === 0 ? (
                                   <button className="mt-4 bg-gray-400 dark:bg-gray-600 text-white px-4 py-2 rounded cursor-not-allowed">
-                                    Exam Ended
+                                    Exam Not Started
                                   </button>
                                 ) : (
                                   <>
@@ -237,7 +237,7 @@ const Student: React.FC = () => {
                                   exam.durationMinutes
                                 ) === 0 ? (
                                   <button className="mt-4 bg-gray-400 dark:bg-gray-600 text-white px-4 py-2 rounded cursor-not-allowed">
-                                    Exam Ended
+                                    Exam Not Started
                                   </button>
                                 ) : (
                                   <>
@@ -270,12 +270,12 @@ const Student: React.FC = () => {
                       </div>
 
                       <div className="w-full mt-4 text-right pr-4">
-                        <a
-                          href="teacher/exams"
+                        <Link
+                          to="/student/exams"
                           className="text-blue-500 dark:text-blue-400 hover:underline dark:hover:text-blue-300"
                         >
                           View all
-                        </a>
+                        </Link>
                       </div>
                     </div>
                   </>

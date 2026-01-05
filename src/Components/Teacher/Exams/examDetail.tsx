@@ -165,8 +165,22 @@ const ExamDetail = () => {
     });
   };
 
+  const getLocalISOString = (): string => {
+    const now = new Date();
+    const offset = now.getTimezoneOffset() * 60000;
+    return new Date(now.getTime() - offset).toISOString().slice(0, 16);
+  };
+
+  const minDateTime = getLocalISOString();
   // Handle exam details change
   const handleExamChange = (field: keyof ExamRequest, value: any) => {
+    if (field === "StartTime") {
+      if (value && value < minDateTime) {
+        alert("Thời gian bắt đầu không được ở trong quá khứ!");
+        setCurrentExam((prev) => ({ ...prev, [field]: minDateTime }));
+        return;
+      }
+    }
     setCurrentExam((prev) => ({
       ...prev,
       [field]: value,
@@ -630,6 +644,7 @@ const ExamDetail = () => {
                         type="datetime-local"
                         id="StartTime"
                         name="StartTime"
+                        min={minDateTime}
                         value={formatDateTimeLocal(
                           new Date(currentExam.StartTime)
                         )}
@@ -637,7 +652,6 @@ const ExamDetail = () => {
                           handleExamChange("StartTime", e.target.value)
                         }
                         required
-                        min={1}
                         className={`mt-1 block w-full px-3 py-2 rounded-md text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 transition-colors duration-200 border ${
                           !currentExam.StartTime
                             ? "border-red-500 focus:ring-red-500"

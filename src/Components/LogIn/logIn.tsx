@@ -49,8 +49,8 @@ const LogIn = () => {
         // Map backend roles to Firebase roles
         const roleMap: { [key: string]: string } = {
           "1": "admin",
-          "2": "teacher",
-          "3": "student",
+          "2": "student",
+          "3": "teacher",
         };
         const firebaseRole = roleMap[Role] || "student";
 
